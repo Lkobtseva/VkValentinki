@@ -22,8 +22,6 @@ const MainScreen = ({
   go,
 }) => {
 
-
-
   return (
     <Panel id={'main'}>
       <PanelHeader>Название</PanelHeader>

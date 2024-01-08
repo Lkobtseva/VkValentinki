@@ -3,22 +3,37 @@ import { Panel, PanelHeader, Group, Div, Button, Progress } from '@vkontakte/vku
 import '../styles/Tutorial.css';
 import vkApi from './Api';
 
+
 const Tutorial = ({ id, tutorialStep, nextTutorialStep, go }) => {
 
   const renderTutorialContent = () => {
-
     useEffect(() => {
-      const sendRequestToBackend = async (signature, vk_id, access_token) => {
-        const url = 'https://valentine.itc-hub.ru/api/v1/createuser';
+      const sendRequestToBackend = async (signature, vk_id) => {
 
+        function getAuthString() {
+
+          const VK_PREFIX = 'vk_';
+
+          const url = new URL(window.location.href);
+          const params = url.searchParams;
+
+          return params.toString()
+            .split('&')
+            .filter(p => p.startsWith(VK_PREFIX))
+            .sort()
+            .join('&');
+
+        }
+        const url = 'https://valentine.itc-hub.ru/api/v1/createuser';
+        const authString = getAuthString();
         const headers = {
-          'Authorization': `Bearer ${access_token}`,
+          'Authorization': authString,
           'Sign': signature,
           'Content-Type': 'application/json',
         };
 
         const requestBody = {
-          vk_id,
+          vk_id
         };
 
         try {
@@ -30,60 +45,85 @@ const Tutorial = ({ id, tutorialStep, nextTutorialStep, go }) => {
 
           if (response.ok) {
             console.log('User created successfully!');
-            // действия после успешного создания пользователя
           } else {
             console.error('Failed to create user:', response.statusText);
+            console.log(requestBody);
+            console.log(headers);
+
+            if (response.status === 400) {
+              console.log(response.json());
+            }
           }
         } catch (error) {
           console.error('Error creating user:', error.message);
+          console.log(requestBody);
+          console.log(headers);
         }
       };
 
-      const clientId = '51826188'; // ID приложения
-      const userInfoWithToken = vkApi.init();
+      const fetchData = async () => {
+        try {
+          console.log('Fetching user info...');
+          await vkApi.init();
 
-      if (userInfoWithToken) {
-        const { access_token, id } = userInfoWithToken;
+          // Get user ID  
+          const userInfo = await vkApi.getUserInfo();
 
-        const sortedParams = {
-          vk_id: id,
-          access_token: access_token,
-        };
+          if (vkApi._token && userInfo.id) {
 
-        // Сортировка параметров по ключам
-        const sortedKeys = Object.keys(sortedParams).sort();
-        const sortedQueryString = sortedKeys.map(key => `${key}=${sortedParams[key]}`).join('&');
+            const sortedParams = {
+              vk_id: userInfo.id,
+              access_token: vkApi._token
+            };
 
-        // Генерация подписи
-        const generateSignature = async (data, secret) => {
-          const encoder = new TextEncoder();
-          const encodedData = encoder.encode(data);
-          const encodedSecret = encoder.encode(secret);
+            console.log('Token and ID:', vkApi._token, userInfo.id);
 
-          const key = await window.crypto.subtle.importKey(
-            'raw',
-            encodedSecret,
-            { name: 'HMAC', hash: 'SHA-256' },
-            false,
-            ['sign']
-          );
 
-          const signature = await window.crypto.subtle.sign('HMAC', key, encodedData);
-          return Array.from(new Uint8Array(signature), byte => byte.toString(16).padStart(2, '0')).join('');
-        };
+            // Сортировка параметров по ключам
+            const sortedKeys = Object.keys(sortedParams).sort();
+            const sortedQueryString = sortedKeys.map(key => `${key}=${sortedParams[key]}`).join('&');
 
-        const secretKey = '3ivZAriLc3b3OycmyV6R';
-        const signature = generateSignature(sortedQueryString, secretKey);
+            // Генерация подписи
+            const generateSignature = async (data, secret) => {
+              console.log('Generating signature...');
+              const encoder = new TextEncoder();
+              const encodedData = encoder.encode(data);
+              const encodedSecret = encoder.encode(secret);
 
-        console.log('Generated Signature:', signature);
+              const key = await window.crypto.subtle.importKey(
+                'raw',
+                encodedSecret,
+                { name: 'HMAC', hash: 'SHA-256' },
+                false,
+                ['sign']
+              );
 
-        // Отправляем запрос на бэкенд для создания пользователя
-        sendRequestToBackend(signature, sortedParams.vk_id, access_token);
-      } else {
-        window.location.href = `https://oauth.vk.com/authorize?client_id=${clientId}&response_type=token&v=5.131`;
-      }
+              const signature = await window.crypto.subtle.sign('HMAC', key, encodedData);
+              console.log('Generated Signature:', signature);
+
+              return Array.from(new Uint8Array(signature), byte => byte.toString(16).padStart(2, '0')).join('');
+            };
+
+            const secretKey = '3ivZAriLc3b3OycmyV6R';
+            const signature = await generateSignature(sortedQueryString, secretKey);
+            console.log('Sending request to backend with signature:', signature);
+
+            // Отправляем запрос на бэкенд для создания пользователя
+            sendRequestToBackend(
+              signature,
+              userInfo.id,
+              vkApi._token
+            );
+          } else {
+            window.location.href = `https://oauth.vk.com/authorize?client_id=${id}&response_type=token&v=5.131`;
+          }
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      };
+
+      fetchData();
     }, []);
-
 
     switch (tutorialStep) {
       case 1:

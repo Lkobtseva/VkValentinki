@@ -12,8 +12,6 @@ import {
     Div,
 } from '@vkontakte/vkui';
 
-// ... (imports)
-
 const MyValentinesScreen = ({ id, go }) => {
     const [mutualValentines, setMutualValentines] = useState([]);
     const [receivedValentines, setReceivedValentines] = useState([]);

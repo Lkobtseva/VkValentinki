@@ -2,8 +2,8 @@ import bridge from '@vkontakte/vk-bridge';
 
 class VkApi {
     constructor() {
-        this._token = null;
-        this._userId = null;
+        this._token = '';
+        this._userId = '';
     }
 
     async init() {
@@ -24,7 +24,7 @@ class VkApi {
     async getUserInfo() {
         try {
             if (!this._userId) {
-                console.error('User ID is not available.');
+                console.error('User ID not set');
                 return null;
             }
 
