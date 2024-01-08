@@ -24,7 +24,7 @@ class VkApi {
     async getUserInfo() {
         try {
             if (!this._userId) {
-                console.error('User ID is not available. Please initialize the VK API first.');
+                console.error('User ID is not available.');
                 return null;
             }
 
