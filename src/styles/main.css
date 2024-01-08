@@ -1,0 +1,9 @@
+.vkuiSwitch__self:checked+.vkuiSwitch__pseudo:after {
+    background:  #e76e83 ;
+}
+.vkuiSwitch__self:checked+.vkuiSwitch__pseudo:before {
+    background:  #e76e83 ;
+}
+.vkuiButton__content {
+    display: flex;
+}
