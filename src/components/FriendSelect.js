@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { Panel, PanelHeader, FormLayout, Button, Div } from '@vkontakte/vkui';
-import bridge from '@vkontakte/vk-bridge';
+import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import { Panel, PanelHeader, FormLayout, Button, Div } from "@vkontakte/vkui";
+import bridge from "@vkontakte/vk-bridge";
 
 const SendValentineFriendSelect = ({ id, onNext }) => {
   const [selectedFriends, setSelectedFriends] = useState([]);
 
   useEffect(() => {
     bridge.subscribe(({ detail: { type, data } }) => {
-      if (type === 'VKWebAppGetFriendsResult' && data && data.users) {
+      if (type === "VKWebAppGetFriendsResult" && data && data.users) {
         // Обработка выбора друзей
         const friendInfoArray = data.users.map((friend) => {
           return {
@@ -23,7 +23,7 @@ const SendValentineFriendSelect = ({ id, onNext }) => {
     });
 
     // Открываем окно выбора друзей
-    bridge.send('VKWebAppGetFriends', {});
+    bridge.send("VKWebAppGetFriends", {});
   }, []);
 
   return (
@@ -35,14 +35,19 @@ const SendValentineFriendSelect = ({ id, onNext }) => {
           <Div>
             {/* Дополнительная информация о выбранных друзьях */}
             {selectedFriends.map((friend) => (
-              <div style={{
-                marginTop: '20px',
-                marginBottom: '20px',
-                border: '3px solid #e76e83',
-                borderRadius: '15px',
-                padding: '10px',
-                backgroundColor: 'white'
-              }} key={friend.id}>Выбран друг: {friend.first_name} {friend.last_name}</div>
+              <div
+                style={{
+                  marginTop: "20px",
+                  marginBottom: "20px",
+                  border: "3px solid #e76e83",
+                  borderRadius: "15px",
+                  padding: "10px",
+                  backgroundColor: "white",
+                }}
+                key={friend.id}
+              >
+                Выбран друг: {friend.first_name} {friend.last_name}
+              </div>
             ))}
             <Button size="l" stretched onClick={onNext}>
               Готово

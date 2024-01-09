@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState } from "react";
+import PropTypes from "prop-types";
 
 import {
   Panel,
@@ -7,19 +7,18 @@ import {
   Div,
   Gallery,
   Avatar,
-  Button
-} from '@vkontakte/vkui';
+  Button,
+} from "@vkontakte/vkui";
 
 const designs = [
-  { src: '/design1.jpg' },
-  { src: '/design2.jpg' },
-  { src: '/design3.jpg' },
-  { src: '/design4.jpg' },
-  { src: '/design5.jpg' }
+  { src: "/design1.jpg" },
+  { src: "/design2.jpg" },
+  { src: "/design3.jpg" },
+  { src: "/design4.jpg" },
+  { src: "/design5.jpg" },
 ];
 
 const SendValentineDesignSelect = ({ onNext }) => {
-
   const [selectedDesign, setSelectedDesign] = useState(null);
 
   return (
@@ -27,21 +26,21 @@ const SendValentineDesignSelect = ({ onNext }) => {
       <PanelHeader>Выберите дизайн</PanelHeader>
 
       <Div>
-        <Div style={{ justifyContent: 'center' }}>
-          <Div style={{
-            width: 300,
-            height: 400,
-            border: '1px solid gray'
-          }}>
-            {selectedDesign && (
-              <img src={selectedDesign.src} />
-            )}
+        <Div style={{ justifyContent: "center" }}>
+          <Div
+            style={{
+              width: 300,
+              height: 400,
+              border: "1px solid gray",
+            }}
+          >
+            {selectedDesign && <img src={selectedDesign.src} />}
           </Div>
         </Div>
       </Div>
 
       <Gallery style={{ height: 120 }}>
-        {designs.map(d => (
+        {designs.map((d) => (
           <Avatar
             key={d.src}
             src={d.src}
@@ -55,10 +54,9 @@ const SendValentineDesignSelect = ({ onNext }) => {
           Далее
         </Button>
       </Div>
-
     </Panel>
   );
-}
+};
 SendValentineDesignSelect.propTypes = {
   id: PropTypes.string,
   onSelectDesign: PropTypes.func,
