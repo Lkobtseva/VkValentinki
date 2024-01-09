@@ -8,7 +8,7 @@ class VkApi {
 
     async init() {
         try {
-            const authData = await bridge.send('VKWebAppGetAuthToken', { app_id: 51826188, scope: 'friends' });
+            const authData = await bridge.send('VKWebAppGetAuthToken', { app_id: 51826188, scope: '' });
             this._token = authData.access_token;
 
             // Получение информации о текущем пользователе
