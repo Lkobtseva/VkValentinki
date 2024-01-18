@@ -38,3 +38,9 @@
     opacity: 0;
     transform: translateY(100%);
   }
+  
+  @media screen and (max-width: 600px) {
+  .valentine__popup {
+width: 80%;
+  }
+}

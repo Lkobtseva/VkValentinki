@@ -12,3 +12,20 @@
     background-color: #FF3347;
   }
 
+.hello__icon{
+    background-image: url(../images/hello.svg);
+    background-repeat: no-repeat;
+    height: 60px;
+    width: 60px;
+    padding:0;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    margin-bottom: 20px;
+}
+
+@media screen and (max-width: 900px) {
+    .tutorial__block{
+        margin-top: 200px;
+    }
+}

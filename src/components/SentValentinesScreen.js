@@ -7,10 +7,13 @@ import {
   Button,
   PopoutWrapper,
   Popup,
+  FixedLayout,
   Div,
 } from "@vkontakte/vkui";
 import vkApi from "../utils/Api";
 import Navigator from "./Navigator";
+import "../styles/nav.css";
+import "../styles/main.css";
 
 const SentValentinesScreen = ({ id, go }) => {
   const [sentValentines, setSentValentines] = useState([]);
@@ -209,9 +212,11 @@ const SentValentinesScreen = ({ id, go }) => {
   };
 
   return (
-    <Panel id={id}>
-      <PanelHeader>Отправленные</PanelHeader>
-      <Div style={{ paddingTop: "15px", paddingBottom: "100px" }}>
+    <Panel id={"SentValentines"}>
+      <FixedLayout filled vertical="top">
+        <PanelHeader>Отправленные</PanelHeader>
+      </FixedLayout>
+      <Div style={{ paddingTop: "70px", paddingBottom: "100px" }}>
         {renderSentValentines()}
         {popupOpen && (
           <Div
@@ -219,69 +224,83 @@ const SentValentinesScreen = ({ id, go }) => {
             style={{
               position: "fixed",
               left: "50%",
-              top: "50%",
+              top: "46%",
+              width: "80%",
+              position: "fixed",
+              backgroundColor: "white",
               transform: "translate(-50%, -50%)",
-              //backgroundColor: "#bcbcbc6e",
-              width: '70%',
-              //height: "100%",
-              //border: "1px solid #d6d5d5",
+              padding: "0px 10px 20px",
               borderRadius: "10px",
+              display: "flex",
+              justifyContent: "center",
+              flexDirection: "column",
+              alignItems: "center",
+              border: "1px solid rgb(193 193 193)",
             }}
           >
             <Div
               style={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
+                width: "100%",
                 height: "100%",
+                display: "flex",
+                justifyContent: "center",
+                padding: "0",
+                position: "absolute",
               }}
             >
-              <Div
+              <img
+                src={`${
+                  backgrounds.find(
+                    (b) => b.id === selectedValentine.backgroundId
+                  )?.image_background
+                }`}
+                alt="Background"
                 style={{
-                  display: "flex",
-                  backgroundColor: "white",
+                  width: "80%",
+                  top: "14%",
+                  objectFit: "cover",
+                  position: "absolute",
                   borderRadius: "10px",
-                  flexDirection: "column",
                 }}
-              >
-                <img
-                  src={`${
-                    backgrounds.find(
-                      (b) => b.id === selectedValentine.backgroundId
-                    )?.image_background
-                  }`}
-                  alt="Background"
-                  style={{ width: "100%", borderRadius: "10px" }}
-                />
-                <img
-                  src={`${
-                    valentines.find((b) => b.id === selectedValentine.imageId)
-                      ?.image
-                  }`}
-                  alt="Background"
-                  style={{
-                    width: "50%",
-                    borderRadius: "10px",
-                    marginTop: "-50%",
-                    marginLeft: "auto",
-                    marginRight: "auto",
-                    backgroundSize: 'cover',
-    maxHeight: '103px',
-                  }}
-                />
-                <p style={{ marginTop: "20%" }}>{selectedValentine.text}</p>
-                <Button
-                  style={{
-                    color: "white",
-                    backgroundColor: "#FF3347",
-                  }}
-                  onClick={closePopup}
-                >
-                  Закрыть
-                </Button>
-              </Div>
+              />
+              <img
+                src={`${
+                  valentines.find((b) => b.id === selectedValentine.imageId)
+                    ?.image
+                }`}
+                alt="Background"
+                style={{
+                  width: "50%",
+                  top: "14%",
+                  height: "auto",
+                  objectFit: "cover",
+                  position: "absolute",
+                  borderRadius: "10px",
+                }}
+              />
             </Div>
+            <p
+              style={{
+                marginTop: "65%",
+                maxWidth: "300px",
+                marginLeft: "auto",
+                marginRight: "auto",
+                textAlign: "center",
+              }}
+            >
+              {selectedValentine.text}
+            </p>
+            <Button
+              style={{
+                color: "white",
+                backgroundColor: "#FF3347",
+                marginLeft: 'auto',
+    marginRight: 'auto',
+              }}
+              onClick={closePopup}
+            >
+              Закрыть
+            </Button>
           </Div>
         )}
       </Div>

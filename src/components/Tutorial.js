@@ -11,6 +11,7 @@ import "../styles/Tutorial.css";
 import Auth from "../utils/Auth";
 import vkApi from "../utils/Api";
 
+
 const Tutorial = ({ id, tutorialStep, nextTutorialStep, go }) => {
   const [userCreated, setUserCreated] = useState(false);
   const [fetchCompleted, setFetchCompleted] = useState(false);
@@ -147,7 +148,7 @@ const Tutorial = ({ id, tutorialStep, nextTutorialStep, go }) => {
         <Div
           style={{ maxWidth: "200px", marginRight: "auto", marginLeft: "auto" }}
         >
-          <Div>какая нибудь иконка, потом придумаем что тут будет</Div>
+          <Div className="hello__icon"></Div>
           <Button
             className="tutorial__button"
             style={{
@@ -168,7 +169,7 @@ const Tutorial = ({ id, tutorialStep, nextTutorialStep, go }) => {
   return (
     <Panel id={"tutorial"}>
       <PanelHeader>Valentinki</PanelHeader>
-      <Group style={{ marginTop: "200px" }}>
+      <Group className="tutorial__block">
         {renderTutorialContent()}
         {!userCreated && <Progress value={tutorialStep * 30} max={90} />}
         {!userCreated && tutorialStep < 3 && (

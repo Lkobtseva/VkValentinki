@@ -14,7 +14,9 @@ const Navigator = ({ go }) => {
 
   useEffect(() => {
     const mainPageElement = document.getElementById("main");
-    setIsMainPage(mainPageElement);
+    const myValentinesScreen = document.getElementById("myValentines");
+    const sentValentinesScreen = document.getElementById("SentValentines");
+    setIsMainPage(!!(mainPageElement || myValentinesScreen || sentValentinesScreen));
 
     const designElement = document.getElementById("design");
     const friendElement = document.getElementById("friend");
