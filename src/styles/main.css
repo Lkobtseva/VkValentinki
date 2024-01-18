@@ -1,9 +1,37 @@
-.vkuiSwitch__self:checked+.vkuiSwitch__pseudo:after {
-    background:  #e76e83 ;
+.vkuiSwitch__self:checked + .vkuiSwitch__pseudo:after {
+  background: #ff3347;
 }
-.vkuiSwitch__self:checked+.vkuiSwitch__pseudo:before {
-    background:  #e76e83 ;
+.vkuiSwitch__self:checked + .vkuiSwitch__pseudo:before {
+  background: #ff3347;
 }
 .vkuiButton__content {
-    display: flex;
+  display: flex;
 }
+.nav__button {
+  color: black;
+  background-color: white;
+  border: 10px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.nav__button:active {
+  filter: brightness(0.8);
+}
+
+.custom-notification {
+    border-radius: 10px;
+    margin-left: 16px;
+    margin-right: 16px;
+    display: flex;
+    justify-content: center;
+    background-color: #ff3448;
+    color: white;
+    opacity: 1;
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  
+  .custom-notification.hidden {
+    opacity: 0;
+    transform: translateY(100%);
+  }

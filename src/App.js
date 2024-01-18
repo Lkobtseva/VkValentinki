@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import ReactDOM from "react-dom";
 import {
   ConfigProvider,
   AdaptivityProvider,
@@ -6,27 +7,51 @@ import {
   View,
   ModalRoot,
   ModalPage,
+  Toast,
 } from "@vkontakte/vkui";
-
 import "@vkontakte/vkui/dist/vkui.css";
-import bridge from "@vkontakte/vk-bridge";
+import "./index.css";
 import Tutorial from "./components/Tutorial";
 import MainScreen from "./components/MainScreen";
 import SendValentineDesignSelect from "./components/DesignSelect";
 import SendValentineMessage from "./components/ValentineMessage";
-import SendValentineSuccess from "./components/SendValentineSuccess";
+import CustomNotification from "./components/SendValentineSuccess";
 import MyValentinesScreen from "./components/MyValentinesScreen";
 import SendValentineFriendSelect from "./components/FriendSelect";
-import vkApi from "./components/Api";
-//import "./hooks/hooks";
+import SentValentineScreen from "./components/SentValentinesScreen";
+import vkApi from "./utils/Api";
 
 const App = () => {
   const [activeView, setActiveView] = useState("tutorial");
   const [popout, setPopout] = useState(null);
   const [tutorialStep, setTutorialStep] = useState(1);
   const [user, setUser] = useState({});
-  const [selectedFriend, setSelectedFriend] = useState(null);
   const [userFriends, setUserFriends] = useState([]);
+  const [friendId, setFriendId] = useState(null);
+  const [ValentineId, setValentineId] = useState(null);
+  const [BackgroundId, setBackgroundId] = useState(null);
+  const [message, setMessage] = useState("");
+  const [isAnonymous, setAnonymous] = useState(false);
+
+  const nextTutorialStep = () => {
+    setTutorialStep((prevStep) => prevStep + 1);
+  };
+
+  const handleSelectDesign = (selectedValentineId, selectedBackgroundId) => {
+    setValentineId(selectedValentineId);
+    setBackgroundId(selectedBackgroundId);
+  };
+
+  const handleSelectFriend = (selectedFriendId) => {
+    setFriendId(selectedFriendId);
+  };
+
+  const handleSelectMessage = (text, isAnon) => {
+    setMessage(text);
+    setAnonymous(isAnon);
+
+    sendValentineToBackend();
+  };
 
   //инициализация приложения
   useEffect(() => {
@@ -58,24 +83,94 @@ const App = () => {
 
   const onCloseModal = () => setPopout(null);
 
-  // tutorial
-  const nextTutorialStep = () => {
-    setTutorialStep((prevStep) => prevStep + 1);
+  //отправка валентинки
+  const sendValentineToBackend = async () => {
+    //получаем sign
+    const configString = window.location.href;
+    const url = new URL(configString);
+    const params = url.searchParams;
+    const signature = params.get("sign");
+
+    //получаем AuthString
+    function getAuthString() {
+      const VK_PREFIX = "vk_";
+      const url = new URL(window.location.href);
+      const params = url.searchParams;
+
+      return params
+        .toString()
+        .split("&")
+        .filter((p) => p.startsWith(VK_PREFIX))
+        .sort()
+        .join("&");
+    }
+    const authString = getAuthString();
+
+    // Получение ID отправителя
+    const userInfo = await vkApi.getUserInfo();
+    const userSenderVkId = userInfo?.id.toString();
+
+    try {
+      const response = await fetch(
+        "https://valentine.itc-hub.ru/api/v1/sendvalentine",
+        {
+          method: "POST",
+          headers: {
+            Authorization: authString,
+            Sign: signature,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            user_sender_vk_id: userSenderVkId,
+            user_recipient_vk_id: friendId,
+            valentine_id: ValentineId,
+            background_id: BackgroundId,
+            text: message,
+            anonim: isAnonymous,
+          }),
+        }
+      );
+
+      console.log("Sending to server:", {
+        message,
+        isAnonymous,
+        friendId,
+        ValentineId,
+        BackgroundId,
+      });
+
+      if (response.ok) {
+
+        // Создание контейнера для компонента
+        const container = document.createElement("div");
+        document.body.appendChild(container);
+
+        const customNotification = (
+          <CustomNotification
+            onClose={() => {
+              ReactDOM.unmountComponentAtNode(container);
+              document.body.removeChild(container);
+            }}
+          />
+        );
+        ReactDOM.render(customNotification, container);
+        console.log("Данные успешно отправлены на бэкенд");
+      } else {
+        console.error("Ошибка при отправке данных на бэкенд");
+      }
+    } catch (error) {
+      console.error("Ошибка при отправке данных на бэкенд:", error);
+    }
   };
 
-  const handleSendValentine = (message, isAnonymous) => {
-    // Логика отправки валентинки
-    // ...
-
-    // Переход на экран успешной отправки
-    go("sendValentineSuccess");
-  };
 
   return (
     <ConfigProvider>
       <AdaptivityProvider>
         <AppRoot>
           <View activePanel={activeView} popout={popout}>
+		  
+
             <Tutorial
               id="tutorial"
               tutorialStep={tutorialStep}
@@ -85,38 +180,35 @@ const App = () => {
 
             <MainScreen id="main" go={go} user={user} />
             <SendValentineFriendSelect
-              id="SendValentineFriendSelect"
+              id="friend"
               go={go}
               friends={userFriends}
-              onNext={() => go("sendValentineDesignSelect")}
+              onSelectFriend={handleSelectFriend}
+              onNext={() => go("design")}
             />
 
             <SendValentineDesignSelect
-              id="sendValentineDesignSelect"
+              id="design"
               go={go}
+              onSelectDesign={handleSelectDesign}
               onNext={() => go("sendValentineMessage")}
             />
 
             <SendValentineMessage
               id="sendValentineMessage"
               go={go}
-              onSend={handleSendValentine}
+              onNext={() => go("main")}
+              onSelectMessage={handleSelectMessage}
             />
-
-            <SendValentineSuccess id="sendValentineSuccess" go={go} />
-
+            <SentValentineScreen id="SentValentines" go={go} />
             <MyValentinesScreen id="myValentines" go={go} />
           </View>
-
-          <ModalRoot activeModal={null}>
-            <ModalPage id="sendValentineModal" onClose={onCloseModal}>
-              {/* Содержимое модального окна для отправки валентинки */}
-            </ModalPage>
-          </ModalRoot>
         </AppRoot>
       </AdaptivityProvider>
     </ConfigProvider>
   );
+
+  
 };
 
 export default App;

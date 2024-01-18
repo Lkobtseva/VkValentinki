@@ -1,28 +1,21 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { Panel, PanelHeader, Div, Button } from "@vkontakte/vkui";
+import React, { useEffect } from "react";
+import {  Div, } from "@vkontakte/vkui";
+import "../styles/main.css";
 
-const SendValentineSuccess = ({ id, go }) => {
+const CustomNotification = ({ recipientName, onClose }) => {
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      onClose();
+    }, 1000);
+
+    return () => clearTimeout(timeoutId);
+  }, [onClose]);
+
   return (
-    <Panel id={id}>
-      <PanelHeader>Отправлено</PanelHeader>
-
-      <Div>
-        <h2>Ваша валентинка успешно отправлена!</h2>
-      </Div>
-
-      <Div>
-        <Button size="l" stretched onClick={() => go("main")}>
-          Вернуться на главную
-        </Button>
-      </Div>
-    </Panel>
+    <Div className="custom-notification">
+      <p>Валентинка успешно отправлена!</p>
+    </Div>
   );
 };
 
-SendValentineSuccess.propTypes = {
-  id: PropTypes.string,
-  go: PropTypes.func,
-};
-
-export default SendValentineSuccess;
+export default CustomNotification;

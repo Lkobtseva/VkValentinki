@@ -1,4 +1,4 @@
-import { React } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Panel,
   PanelHeader,
@@ -8,67 +8,176 @@ import {
   Progress,
 } from "@vkontakte/vkui";
 import "../styles/Tutorial.css";
-import Auth from "../hooks/hooks";
+import Auth from "../utils/Auth";
+import vkApi from "../utils/Api";
 
 const Tutorial = ({ id, tutorialStep, nextTutorialStep, go }) => {
-  //авторизация
-  Auth();
+  const [userCreated, setUserCreated] = useState(false);
+  const [fetchCompleted, setFetchCompleted] = useState(false);
+
+  useEffect(() => {
+    //получаем sign
+    const configString = window.location.href;
+    const url = new URL(configString);
+    const params = url.searchParams;
+    const signature = params.get("sign");
+
+    const sendRequestToBackend = async (signature, vk_id, secretKey) => {
+      function getAuthString() {
+        const VK_PREFIX = "vk_";
+        const url = new URL(window.location.href);
+        const params = url.searchParams;
+
+        return params
+          .toString()
+          .split("&")
+          .filter((p) => p.startsWith(VK_PREFIX))
+          .sort()
+          .join("&");
+      }
+
+      const url = "https://valentine.itc-hub.ru/api/v1/createuser";
+      const authString = getAuthString();
+
+      const formData = new FormData();
+      formData.append("vk_id", vk_id);
+
+      const headers = {
+        Authorization: authString,
+        Sign: signature,
+      };
+
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers,
+          body: formData,
+        });
+
+        if (response.ok) {
+          console.log("User created successfully!");
+          setUserCreated(false);
+        } else {
+          console.error("Failed to create user:", response.statusText);
+          if (response.status === 400) {
+            setUserCreated(true);
+            console.log(await response.json());
+          }
+        }
+        setFetchCompleted(true);
+
+      } catch (error) {
+        console.error("Error creating user:", error.message);
+      }
+    };
+
+    const fetchData = async () => {
+      try {
+        console.log("Fetching user info...");
+        await vkApi.init();
+
+        const userInfo = await vkApi.getUserInfo();
+        const secretKey =
+          process.env.REACT_APP_SECRET_KEY || "defaultSecretKey";
+        // Отправка запроса на бэкенд для создания пользователя
+        sendRequestToBackend(signature, userInfo.id, secretKey);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (!fetchCompleted) {
+    return null;
+  }
 
   const renderTutorialContent = () => {
-    switch (tutorialStep) {
-      case 1:
-        return (
-          <Div>
-            <h2>Добро пожаловать в приложение "Валентинки"!</h2>
-            <p>
-              Создайте уникальные валентинки и отправляйте их своим друзьям.
-            </p>
-          </Div>
-        );
-      case 2:
-        return (
-          <Div>
-            <h2>Что умеет приложение?</h2>
-            <p>
-              Приложение позволяет вам самостоятельно создавать валентинки,
-              выбирать получателя и отправлять их анонимно или не анонимно.
-            </p>
-          </Div>
-        );
-      case 3:
-        return (
-          <Div>
-            <h2>Начнем работу!</h2>
-            <Button
+    if (!userCreated) {
+      switch (tutorialStep) {
+        case 1:
+          return (
+            <Div>
+              <h2>Добро пожаловать в приложение "Валентинки"!</h2>
+              <p>
+                Создайте уникальные валентинки и отправляйте их своим друзьям.
+              </p>
+            </Div>
+          );
+        case 2:
+          return (
+            <Div>
+              <h2>Что умеет приложение?</h2>
+              <p>
+                Приложение позволяет вам самостоятельно создавать валентинки,
+                выбирать получателя и отправлять их анонимно или не анонимно.
+              </p>
+            </Div>
+          );
+        case 3:
+          return (
+            <Div
               style={{
-                color: "white",
-                backgroundColor: "#e76e83",
+                maxWidth: "200px",
+                marginRight: "auto",
+                marginLeft: "auto",
               }}
-              size="l"
-              onClick={() => go("main")}
-              data-to="main"
             >
-              Создать валентинку
-            </Button>
-          </Div>
-        );
-      default:
-        return null;
+              <h2 style={{ paddingLeft: "5px" }}>Начнем работу!</h2>
+              <Button
+                className="tutorial__button"
+                style={{
+                  color: "white",
+                  backgroundColor: "#FF3347",
+                }}
+                size="l"
+                onClick={() => go("main")}
+                data-to="main"
+              >
+                Создать валентинку
+              </Button>
+            </Div>
+          );
+        default:
+          return null;
+      }
+    } else {
+      return (
+        <Div
+          style={{ maxWidth: "200px", marginRight: "auto", marginLeft: "auto" }}
+        >
+          <Div>какая нибудь иконка, потом придумаем что тут будет</Div>
+          <Button
+            className="tutorial__button"
+            style={{
+              color: "white",
+              backgroundColor: "#FF3347",
+            }}
+            size="l"
+            onClick={() => go("main")}
+            data-to="main"
+          >
+            Создать валентинку
+          </Button>
+        </Div>
+      );
     }
   };
 
   return (
-    <Panel id={id}>
-      <PanelHeader>Обучение</PanelHeader>
-      <Group>
+    <Panel id={"tutorial"}>
+      <PanelHeader>Valentinki</PanelHeader>
+      <Group style={{ marginTop: "200px" }}>
         {renderTutorialContent()}
-        <Progress value={tutorialStep} max={3} />
-        {tutorialStep < 3 && (
+        {!userCreated && <Progress value={tutorialStep * 30} max={90} />}
+        {!userCreated && tutorialStep < 3 && (
           <Div>
             <Button
+              className="tutorial__button"
               style={{
                 color: "white",
-                backgroundColor: "#e76e83",
+                backgroundColor: "#FF3347",
               }}
               size="l"
               onClick={nextTutorialStep}

@@ -10,29 +10,34 @@ import {
   Checkbox,
   Switch,
   FormLayout,
+  Group,
 } from "@vkontakte/vkui";
+import "../styles/main.css";
+import Navigator from "./Navigator";
+import "../styles/message.css";
 
-const SendValentineMessage = ({ id, onSendMessage, onSendAnonymously, go }) => {
-  const [message, setMessage] = useState("");
+const SendValentineMessage = ({ go, onSend, onSelectMessage, onNext }) => {
+  const [text, setText] = useState("");
+  const [isAnon, setIsAnon] = useState(false);
 
-  const handleSend = () => {
-    // Код для отправки валентинки с сообщением и выбранными опциями
-    // ...
-
-    // После отправки переход на главную страницу
-    onSendMessage();
+  const handleSelectMessage = () => {
+    onSelectMessage(text, isAnon);
+    // onSend();
+    onNext();
+    console.log("message:", text);
   };
 
   return (
-    <Panel id={id}>
+    <Panel id={"sendingMessage"}>
       <PanelHeader>Напишите сообщение</PanelHeader>
 
       <FormLayout>
         <Div>
           <p>Хотите написать сообщение к валентинке?</p>
           <Textarea
-            placeholder="Текс сообщения"
-            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Текст сообщения"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
           />
         </Div>
         <Div
@@ -57,23 +62,39 @@ const SendValentineMessage = ({ id, onSendMessage, onSendAnonymously, go }) => {
                 marginBottom: "-20px",
               }}
             >
-              <Checkbox /* onChange={(e) => onSendAnonymously(e.target.checked)} */
+              <Checkbox
+                checked={isAnon}
+                onChange={(e) => setIsAnon(e.target.checked)}
               />
               <p style={{ marginLeft: "8px" }}>Да</p>
             </Div>
             <Div style={{ display: "flex", alignItems: "center" }}>
-              <Checkbox /* onChange={(e) => onSendAnonymously(e.target.checked)} */
+              <Checkbox
+                checked={!isAnon}
+                onChange={(e) => setIsAnon(!e.target.checked)}
               />
               <p style={{ marginLeft: "8px" }}>Нет</p>
             </Div>
           </Div>
         </Div>
         <Div>
-          <Button size="l" stretched onClick={() => go("main")} data-to="main">
+          <Button
+            style={{
+              color: "white",
+              backgroundColor: "#FF3347",
+            }}
+            size="l"
+            stretched
+            onClick={handleSelectMessage}
+            data-to="main"
+            go={go}
+          >
             Отправить
           </Button>
         </Div>
       </FormLayout>
+      {/* Навигационная панель */}
+      <Navigator go={go} />
     </Panel>
   );
 };
@@ -82,6 +103,10 @@ SendValentineMessage.propTypes = {
   id: PropTypes.string,
   onSendMessage: PropTypes.func,
   onSendAnonymously: PropTypes.func,
+  go: PropTypes.func,
+  onSelectMessage: PropTypes.func,
+  onSend: PropTypes.func,
+  onNext: PropTypes.func,
 };
 
 export default SendValentineMessage;

@@ -1,0 +1,40 @@
+.navBar__button1 {
+    background-image: url(../images/sendGrey.svg);
+    background-repeat: no-repeat;
+
+}
+.navBar__button1_active  {
+    background-image: url(../images/sendPink.svg);
+    background-repeat: no-repeat;
+
+}
+.navBar__button2 {
+    background-image: url(../images/profileGray.svg);
+    background-repeat: no-repeat;
+
+}
+.navBar__button2_active {
+    background-image: url(../images/profilePink.svg);
+    background-repeat: no-repeat;
+   
+}
+
+.profile__span{
+    color: grey;
+}
+.profile__span_active{
+    color: #FF3347;
+}
+
+.send__span{
+    color: grey;
+}
+.send__span_active{
+    color: #FF3347;
+}
+
+.vkuiGroup__inner {
+padding-top: 0;
+padding-bottom: 0;
+
+}

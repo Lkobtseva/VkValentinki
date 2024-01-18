@@ -1,67 +1,137 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { Panel, PanelHeader, FormLayout, Button, Div } from "@vkontakte/vkui";
-import bridge from "@vkontakte/vk-bridge";
+import {
+  Panel,
+  PanelHeader,
+  Button,
+  Div,
+  Group,
+  Input,
+  Avatar,
+} from "@vkontakte/vkui";
+import "../styles/main.css";
+import Navigator from "./Navigator";
+import vkApi from "../utils/Api";
+//import "../styles/friends.css";
 
-const SendValentineFriendSelect = ({ id, onNext }) => {
-  const [selectedFriends, setSelectedFriends] = useState([]);
+export default function SendValentineFriendSelect({
+  onNext,
+  onSelectFriend,
+  go,
+}) {
+  const [friends, setFriends] = useState([]);
+  const [selected, setSelected] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedFriendId, setSelectedFriendId] = useState(null);
+
+  const handleSelectFriend = () => {
+    onSelectFriend(selectedFriendId);
+    console.log(selectedFriendId);
+    onNext();
+  };
 
   useEffect(() => {
-    bridge.subscribe(({ detail: { type, data } }) => {
-      if (type === "VKWebAppGetFriendsResult" && data && data.users) {
-        // Обработка выбора друзей
-        const friendInfoArray = data.users.map((friend) => {
-          return {
-            id: friend.id,
-            first_name: friend.first_name,
-            last_name: friend.last_name,
-          };
-        });
+    async function loadFriends() {
+      try {
+        const friendsData = await vkApi.getFriends();
+        if (friendsData) {
+          const sortedFriends = friendsData.items.sort((a, b) => {
+            const nameA = `${a.first_name} ${a.last_name}`.toLowerCase();
+            const nameB = `${b.first_name} ${b.last_name}`.toLowerCase();
+            return nameA.localeCompare(nameB);
+          });
 
-        setSelectedFriends(friendInfoArray);
+          setFriends(sortedFriends);
+        }
+      } catch (error) {
+        console.error("Error loading friends:", error);
       }
-    });
+    }
 
-    // Открываем окно выбора друзей
-    bridge.send("VKWebAppGetFriends", {});
-  }, []);
+    loadFriends();
+  }, [[setSelectedFriendId]]);
+
+  function toggleSelect(friendId) {
+    if (selected.includes(friendId)) {
+      setSelected([]);
+      setSelectedFriendId(null);
+    } else {
+      const newSelected = [friendId];
+      setSelected(newSelected);
+      setSelectedFriendId(friendId);
+    }
+  }
+
+  // Фильтрация друзей по поисковому запросу
+  const filteredFriends = friends.filter(
+    (friend) =>
+      friend.first_name.toLowerCase().startsWith(searchTerm.toLowerCase()) ||
+      friend.last_name.toLowerCase().startsWith(searchTerm.toLowerCase())
+  );
+  // выбор друга сердечком
+  const getHeartIconClass = (friendId) => {
+    return selected.includes(friendId) ? "heart-icon_selected" : "";
+  };
 
   return (
-    <Panel id={id}>
-      <PanelHeader>Выберите друга</PanelHeader>
-
-      <FormLayout>
-        {selectedFriends.length > 0 && (
-          <Div>
-            {/* Дополнительная информация о выбранных друзьях */}
-            {selectedFriends.map((friend) => (
-              <div
+    <Panel id="friend" className="container">
+      <PanelHeader className="header">Выберите друга</PanelHeader>
+      <div className="search-bar">
+        <Input
+          type="text"
+          placeholder="Поиск друзей"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+      <Group
+        className="group-container"
+        style={{
+          maxHeight: "1500px",
+          overflowY: "auto",
+          padding: "15px",
+          paddingTop: "10px",
+          paddingBottom: "100px",
+        }}
+      >
+        {filteredFriends.map((friend) => (
+          <Div
+            key={friend.id}
+            className="friend-card"
+            onClick={() => toggleSelect(friend.id)}
+          >
+            <Avatar
+              className="friend-avatar"
+              src={friend.photo_100}
+              alt={`${friend.first_name} ${friend.last_name}`}
+            />
+            <div className="friend-name">
+              {friend.first_name} {friend.last_name}
+            </div>
+            <div className={getHeartIconClass(friend.id)}></div>
+            {selected.includes(friend.id) && (
+              <Button
+                className="select-button"
                 style={{
-                  marginTop: "20px",
-                  marginBottom: "20px",
-                  border: "3px solid #e76e83",
-                  borderRadius: "15px",
-                  padding: "10px",
-                  backgroundColor: "white",
+                  color: "white",
+                  backgroundColor: "#FF3347",
                 }}
-                key={friend.id}
+                onClick={handleSelectFriend}
               >
-                Выбран друг: {friend.first_name} {friend.last_name}
-              </div>
-            ))}
-            <Button size="l" stretched onClick={onNext}>
-              Готово
-            </Button>
+                Выбрать
+              </Button>
+            )}
           </Div>
-        )}
-      </FormLayout>
+        ))}
+        <div className="group-background" />
+      </Group>
+      <Navigator go={go} />
     </Panel>
   );
-};
+}
 
 SendValentineFriendSelect.propTypes = {
-  id: PropTypes.string,
   onNext: PropTypes.func,
+  go: PropTypes.func,
+  onSelectFriend: PropTypes.func,
 };
-
-export default SendValentineFriendSelect;

@@ -1,3 +1,14 @@
 .vkuiProgress__in {
-    background:  #e76e83 ;
+    background:  #FF3347 ;
+
 }
+
+.tutorial__button:active {
+    filter: brightness(0.8); 
+  }
+
+  .tutorial__button{
+    color: white;
+    background-color: #FF3347;
+  }
+

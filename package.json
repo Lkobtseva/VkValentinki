@@ -15,18 +15,21 @@
     "keywords": [],
     "license": "MIT",
     "dependencies": {
+        "@happysanta/router": "^0.3.1",
         "@vkontakte/icons": "2.7.0",
         "@vkontakte/vk-bridge": "latest",
         "@vkontakte/vk-miniapps-deploy": "0.0.25",
         "@vkontakte/vk-tunnel": "^0.1.4",
         "@vkontakte/vkui": "^5.1.0",
+        "axios": "^1.6.5",
         "babel-eslint": "^10.1.0",
         "eruda": "^2.4.1",
         "eruda-code": "^2.0.0",
         "eruda-dom": "^2.0.0",
         "prop-types": "^15.7.2",
         "react": "^17.0.2",
-        "react-dom": "^17.0.2"
+        "react-dom": "^17.0.2",
+        "react-router-dom": "^6.21.1"
     },
     "devDependencies": {
         "cross-env": "^7.0.3",

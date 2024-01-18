@@ -1,6 +1,5 @@
 import { useEffect } from "react";
-import vkApi from "../components/Api";
-//import bridge from '@vkontakte/vk-bridge';
+import vkApi from "./Api";
 
 const Auth = () => {
   useEffect(() => {
@@ -9,13 +8,6 @@ const Auth = () => {
     const url = new URL(configString);
     const params = url.searchParams;
     const signature = params.get("sign");
-
-    //проверяем, есть ли уже такой пользователь
-    const checkUserExists = async (vk_id) => {
-      const url = `https://valentine.itc-hub.ru/api/v1/checkuser/${vk_id}`;
-      const response = await fetch(url);
-      return response.ok;
-    };
 
     const sendRequestToBackend = async (signature, vk_id, secretKey) => {
       function getAuthString() {
@@ -70,17 +62,9 @@ const Auth = () => {
         const userInfo = await vkApi.getUserInfo();
         const secretKey =
           process.env.REACT_APP_SECRET_KEY || "defaultSecretKey";
-
-        if (vkApi._token && userInfo.id) {
-          const userExists = await checkUserExists(userInfo.id);
-
-          if (!userExists) {
             // Отправка запроса на бэкенд для создания пользователя
             sendRequestToBackend(signature, userInfo.id, secretKey);
-          }
-        } else {
-          window.location.href = `https://oauth.vk.com/authorize?client_id=${id}&response_type=token&v=5.131`;
-        }
+        
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -91,3 +75,4 @@ const Auth = () => {
 };
 
 export default Auth;
+

@@ -9,18 +9,14 @@ import {
   Header,
   Button,
   Switch,
+  Separator,
 } from "@vkontakte/vkui";
 import "../styles/main.css";
-import heartIcon from "../images/heartIcon.svg";
+import navIcon1 from "../images/nav1.svg";
+import navIcon2 from "../images/nav2.svg";
+import Navigator from "./Navigator";
 
-const MainScreen = ({
-  id,
-  user,
-  valentinesSent,
-  valentinesReceived,
-  mutualMatches,
-  go,
-}) => {
+const MainScreen = ({ user, go }) => {
   return (
     <Panel id={"main"}>
       <PanelHeader>Название</PanelHeader>
@@ -32,21 +28,23 @@ const MainScreen = ({
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
+            paddingBottom: "0",
           }}
         >
           <Div style={{ display: "flex", alignItems: "center" }}>
             <Avatar
-              style={{ border: "5px solid #e76e83" }}
+              style={{ border: "5px solid #FF3347" }}
               src={user && user.photo_200}
-              size={100}
+              size={80}
             />
-            <Div style={{ marginLeft: 8 }}>
+            <Div style={{ marginLeft: 8, paddingLeft: 0 }}>
               <Header level={5}>{`${user && user.first_name} ${
                 user && user.last_name
               }`}</Header>
             </Div>
           </Div>
         </Div>
+        <Separator style={{ display: "none" }}></Separator>
       </Group>
 
       {/* Блок уведомлений */}
@@ -58,60 +56,94 @@ const MainScreen = ({
             justifyContent: "space-between",
           }}
         >
-          <Header>Уведомления</Header>
+          <Div style={{ display: "flex", flexDirection: "column" }}>
+            <Header style={{ paddingLeft: "0" }}>Уведомления</Header>
+            <span style={{ color: "grey", paddingLeft: "0", fontSize: "14px" }}>
+              О приходе новой валентинки
+            </span>
+          </Div>
           <Switch defaultChecked={true} />
         </Div>
       </Group>
 
-      {/* Кнопки перехода */}
-      <Group>
-        <Div>
-          <Button
+      {/* Навигационные кнопки */}
+      <Div style={{ paddingLeft: "0px" }}>
+        <Div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            //gap: "10px",
+            justifyContent: "space-between",
+          }}
+        >
+          {/* Отправленные валентинки */}
+          <Div
+            className="nav__button"
             style={{
-              color: "white",
-              backgroundColor: "#e76e83",
+              cursor: "pointer",
+              display: "flex",
+              paddingLeft: "14px",
+              color: "black",
+              justifyContent: "flex-start",
             }}
             size="l"
             stretched
-            onClick={() => go("SendValentineFriendSelect")}
+            onClick={() => go("SentValentines", "sent")}
           >
-            <Div>
+            <Div style={{ paddingLeft: "0px" }}>
               <img
                 style={{
-                  maxHeight: "20px",
-                  marginRight: "10px",
+                  maxHeight: "25px",
+
                   paddingTop: "2px",
                 }}
-                src={heartIcon}
+                src={navIcon1}
+                alt="Отправленные валентинки"
               ></img>
             </Div>
-            <span style={{ marginTop: "6%" }}>Отправить валентинку</span>
-          </Button>
-        </Div>
-        <Div>
-          <Button
+            <span style={{ display: "flex", alignItems: "center" }}>
+              Отправленные валентинки
+            </span>
+          </Div>
+
+          {/* Полученные валентинки */}
+          <Div
+            className="nav__button"
             style={{
-              color: "white",
-              backgroundColor: "#e76e83",
+              cursor: "pointer",
+              display: "flex",
+              color: "black",
+              justifyContent: "flex-start",
             }}
             size="l"
             stretched
-            onClick={() => go("myValentines")}
+            onClick={() => go("myValentines", "received")}
           >
-            <Div>
+            <Div style={{ paddingLeft: "0px", marginLeft: "-1px" }}>
               <img
                 style={{
-                  maxHeight: "20px",
-                  marginRight: "10px",
+                  maxHeight: "23px",
                   paddingTop: "2px",
                 }}
-                src={heartIcon}
+                src={navIcon2}
+                alt="Полученные валентинки"
               ></img>
             </Div>
-            <span style={{ marginTop: "9%" }}>Мои валентинки</span>
-          </Button>
+            <span
+              style={{
+                display: "flex",
+                alignItems: "center",
+                paddingLeft: "3px",
+              }}
+            >
+              Полученные валентинки
+            </span>
+          </Div>
         </Div>
-      </Group>
+      </Div>
+
+      {/* Навигационная панель */}
+      <Navigator go={go} />
     </Panel>
   );
 };

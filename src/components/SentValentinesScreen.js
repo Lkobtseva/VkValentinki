@@ -1,28 +1,24 @@
 import React, { useState, useEffect } from "react";
-import PropTypes from "prop-types";
 import {
   Panel,
   PanelHeader,
-  Gallery,
+  Card,
   Avatar,
-  Group,
   Button,
+  PopoutWrapper,
+  Popup,
   Div,
 } from "@vkontakte/vkui";
-import Navigator from "./Navigator";
-import "../styles/main.css";
 import vkApi from "../utils/Api";
-import "../styles/received.css";
-import anonim from "../images/avatar.svg";
+import Navigator from "./Navigator";
 
-const MyValentinesScreen = ({ id, go }) => {
-  const [receivedValentines, setReceivedValentines] = useState([]);
-  const [valentines, setValentines] = useState([]);
-  const [backgrounds, setBackgrounds] = useState([]);
-  const [sendersData, setSendersData] = useState([]);
-  const [selectedValentine, setSelectedValentine] = useState(null);
+const SentValentinesScreen = ({ id, go }) => {
+  const [sentValentines, setSentValentines] = useState([]);
+  const [recipientsData, setRecipientsData] = useState([]);
   const [popupOpen, setPopupOpen] = useState(false);
-  const [avatars, setAvatars] = useState([]);
+  const [selectedValentine, setSelectedValentine] = useState(null);
+  const [backgrounds, setBackgrounds] = useState([]);
+  const [valentines, setValentines] = useState([]);
 
   useEffect(() => {
     const getSentValentines = async () => {
@@ -52,7 +48,7 @@ const MyValentinesScreen = ({ id, go }) => {
 
       try {
         const response = await fetch(
-          "https://valentine.itc-hub.ru/api/v1/getvalentinereceived",
+          "https://valentine.itc-hub.ru/api/v1/getvalentinesend",
           {
             method: "POST",
             headers: {
@@ -70,39 +66,36 @@ const MyValentinesScreen = ({ id, go }) => {
         // Преобразуем ответ в нужный формат
         const valentine = data.map((item) => ({
           id: item.id,
-          senderId: item.user_sender_vk_id,
+          recipientId: item.user_recipient_vk_id,
           text: item.text,
           isAnonymous: item.anonim,
           backgroundId: item.background_id,
           imageId: item.valentine_id,
-          createdTime: item.created,
-          match: item.match,
         }));
 
-        const idsArray = valentine.map((v) => v.senderId);
+        const idsArray = valentine.map((v) => v.recipientId);
         const ids = idsArray.join(",");
 
-        const getUsersById = await vkApi.getSenderInfoById(ids);
+        const getUsersById = await vkApi.getUserInfoById(ids);
 
         if (getUsersById && getUsersById.length > 0) {
-          const sendersData = getUsersById.map((user) => ({
+          const recipientsData = getUsersById.map((user) => ({
             userId: user.id,
-            avatar: user.photo_200,
             firstName: user.first_name,
             lastName: user.last_name,
           }));
 
-          setSendersData(sendersData);
-          console.log("senders:", sendersData);
+          setRecipientsData(recipientsData);
         } else {
           console.error("Error getting user info or empty response");
         }
 
-        setReceivedValentines(valentine);
+        setSentValentines(valentine);
       } catch (error) {
         console.error(error);
       }
     };
+
     getSentValentines();
   }, []);
 
@@ -148,11 +141,10 @@ const MyValentinesScreen = ({ id, go }) => {
   const openPopup = (valentineId) => {
     console.log("Opening popup for valentineId:", valentineId);
 
-    const valentines = receivedValentines.find((v) => v.id === valentineId);
+    const valentines = sentValentines.find((v) => v.id === valentineId);
     console.log("Selected valentine:", valentines);
 
     setSelectedValentine(valentines);
-    console.log("Selected Valentine:", selectedValentine);
     console.log("Popup should be opened now");
     setPopupOpen(true);
   };
@@ -161,60 +153,10 @@ const MyValentinesScreen = ({ id, go }) => {
     setPopupOpen(false);
   };
 
-  const renderReceivedValentines = () => {
-    return receivedValentines.map((valentine) => {
-      const senderId = Number(valentine.senderId);
-      const sender = sendersData.find((r) => r.userId === senderId);
-
-      function formatRelativeDate(dateString) {
-        const dateParts = dateString
-          .split(".")
-          .map((part) => parseInt(part, 10));
-        const valentineDate = new Date(
-          dateParts[2],
-          dateParts[1] - 1,
-          dateParts[0]
-        );
-        const currentDate = new Date();
-
-        const timeDifference = currentDate.getTime() - valentineDate.getTime();
-        const daysDifference = Math.floor(timeDifference / (1000 * 3600 * 24));
-
-        if (daysDifference === 0) {
-          return "сегодня";
-        } else if (daysDifference === 1) {
-          return "вчера";
-        } else if (daysDifference > 1) {
-          return `${daysDifference} дня${
-            daysDifference > 1 && daysDifference < 5 ? " " : "ев "
-          }назад`;
-        }
-
-        return dateString;
-      }
-
-      const formattedDate = formatRelativeDate(valentine.createdTime);
-      console.log(formattedDate);
-
-      const avatarStyle = valentine.isAnonymous
-        ? {
-            backgroundImage: `url(${anonim})`,
-            backgroundColor: "black",
-            backgroundSize: "cover",
-          }
-        : { backgroundImage: `url(${sender.avatar})` };
-
-      const getHeartClass = (valentine) => {
-        let heartClass = "heart_basic";
-
-        if (valentine.match) {
-          heartClass = "heart_match";
-        } else if (valentine.isAnonymous) {
-          heartClass = "heart_anonim";
-        }
-
-        return heartClass;
-      };
+  const renderSentValentines = () => {
+    return sentValentines.map((valentine) => {
+      const recipientId = Number(valentine.recipientId);
+      const recipient = recipientsData.find((r) => r.userId === recipientId);
 
       return (
         <Div
@@ -240,66 +182,25 @@ const MyValentinesScreen = ({ id, go }) => {
                 borderRadius: "10px",
                 width: "100%",
                 display: "flex",
-                flexDirection: "row",
+                flexDirection: "column",
               }}
             >
-              <Avatar style={avatarStyle} className="anon-avatar" />
-              <Div
+              <h2 style={{ marginTop: "0", fontSize: "18px" }}>
+                Вы отправили валентинку:
+              </h2>
+              <p style={{ marginTop: "0", fontWeight: "300" }}>
+                {recipient.firstName} {recipient.lastName}
+              </p>
+              <Button
                 style={{
-                  paddingTop: "3px",
-                  paddingLeft: "0",
-                  paddingBottom: "0",
+                  color: "white",
+                  backgroundColor: "#FF3347",
                 }}
+                size="m"
+                onClick={() => openPopup(valentine.id)}
               >
-                <h2
-                  style={{
-                    marginTop: "0",
-                    fontSize: "16px",
-                    marginBottom: "3px",
-                  }}
-                >
-                  {sender.firstName} {sender.lastName}
-                </h2>
-                <p
-                  style={{
-                    marginTop: "0",
-                    fontWeight: "400",
-                    fontSize: "14px",
-                    marginBottom: "0",
-                  }}
-                >
-                  Отправил вам валентинку
-                </p>
-                <p
-                  style={{
-                    color: "grey",
-                    fontWeight: "300",
-                    fontSize: "14px",
-                    marginTop: "5px",
-                  }}
-                >
-                  {formattedDate}
-                </p>
-                <Button
-                  style={{
-                    color: "white",
-                    backgroundColor: "#FF3347",
-                  }}
-                  size="s"
-                  onClick={() => openPopup(valentine.id)}
-                >
-                  Посмотреть
-                </Button>
-              </Div>
-              <div
-                style={{
-                  width: "28px",
-                  height: "28px",
-                  position: "absolute",
-                  right: "40px",
-                }}
-                className={getHeartClass(valentine)}
-              ></div>
+                Посмотреть
+              </Button>
             </Div>
           </Div>
         </Div>
@@ -309,9 +210,9 @@ const MyValentinesScreen = ({ id, go }) => {
 
   return (
     <Panel id={id}>
-      <PanelHeader>Полученные</PanelHeader>
-      <Div style={{ paddingTop: "15px" }}>
-        {renderReceivedValentines()}
+      <PanelHeader>Отправленные</PanelHeader>
+      <Div style={{ paddingTop: "15px", paddingBottom: "100px" }}>
+        {renderSentValentines()}
         {popupOpen && (
           <Div
             onClose={closePopup}
@@ -325,7 +226,6 @@ const MyValentinesScreen = ({ id, go }) => {
               height: "100%",
               border: "1px solid #d6d5d5",
               borderRadius: "10px",
-              paddingBottom: "100px",
             }}
           >
             <Div
@@ -389,8 +289,4 @@ const MyValentinesScreen = ({ id, go }) => {
   );
 };
 
-MyValentinesScreen.propTypes = {
-  id: PropTypes.string.isRequired,
-  go: PropTypes.func.isRequired,
-};
-export default MyValentinesScreen;
+export default SentValentinesScreen;
