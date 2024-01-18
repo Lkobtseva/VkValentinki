@@ -221,10 +221,10 @@ const SentValentinesScreen = ({ id, go }) => {
               left: "50%",
               top: "50%",
               transform: "translate(-50%, -50%)",
-              backgroundColor: "#bcbcbc6e",
-              width: "100%",
-              height: "100%",
-              border: "1px solid #d6d5d5",
+              //backgroundColor: "#bcbcbc6e",
+              width: '70%',
+              //height: "100%",
+              //border: "1px solid #d6d5d5",
               borderRadius: "10px",
             }}
           >
@@ -263,12 +263,14 @@ const SentValentinesScreen = ({ id, go }) => {
                   style={{
                     width: "50%",
                     borderRadius: "10px",
-                    marginTop: "-58%",
+                    marginTop: "-50%",
                     marginLeft: "auto",
                     marginRight: "auto",
+                    backgroundSize: 'cover',
+    maxHeight: '103px',
                   }}
                 />
-                <p style={{ marginTop: "12%" }}>{selectedValentine.text}</p>
+                <p style={{ marginTop: "20%" }}>{selectedValentine.text}</p>
                 <Button
                   style={{
                     color: "white",

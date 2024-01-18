@@ -170,7 +170,7 @@ const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
             <Div
               style={{
                 marginTop: 0,
-                backgroundColor: "#EBEDF0",
+                //backgroundColor: "#EBEDF0",
                 padding: "20px 0px 0px",
               }}
             >

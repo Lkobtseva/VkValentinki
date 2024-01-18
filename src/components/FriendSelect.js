@@ -90,7 +90,7 @@ export default function SendValentineFriendSelect({
           maxHeight: "1500px",
           overflowY: "auto",
           padding: "15px",
-          paddingTop: "10px",
+          paddingTop: "0px",
           paddingBottom: "100px",
         }}
       >
@@ -123,7 +123,7 @@ export default function SendValentineFriendSelect({
             )}
           </Div>
         ))}
-        <div className="group-background" />
+      
       </Group>
       <Navigator go={go} />
     </Panel>

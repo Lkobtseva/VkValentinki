@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import {
   Group,
   Div,
+  FixedLayout
 } from "@vkontakte/vkui";
 import "../styles/nav.css";
 
@@ -22,15 +23,15 @@ const Navigator = ({ go }) => {
     setIsSend(!!(designElement || friendElement || sendingMessageElement));
   }, []);
   return (
-    <Group
+    <FixedLayout filled vertical="bottom"
       id={"navigator"}
       style={{
-        position: "fixed",
+        position:'fixed',
         bottom: "0",
         width: "100%",
-        borderRadius: "10px",
-        borderTop: "1px solid #cbcccd",
-        backgroundColor: "white",
+        borderTopColor: '#3d3d3d',
+        borderTopWidth: '0.5px',
+        borderTopStyle: 'solid'
       }}
     >
       <Div style={{ display: "flex", justifyContent: "space-around" }}>
@@ -54,7 +55,6 @@ const Navigator = ({ go }) => {
                 : ""
             }
             style={{
-              backgroundColor: "transparent",
               marginLeft: "auto",
               marginRight: "auto",
             }}
@@ -93,7 +93,7 @@ const Navigator = ({ go }) => {
                 : ""
             }
             style={{
-              backgroundColor: "transparent",
+              
               marginLeft: "auto",
               marginRight: "auto",
             }}
@@ -112,7 +112,7 @@ const Navigator = ({ go }) => {
           </span>
         </Div>
       </Div>
-    </Group>
+    </FixedLayout>
   );
 };
 Navigator.propTypes = {

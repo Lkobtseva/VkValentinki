@@ -22,12 +22,13 @@ const MainScreen = ({ user, go }) => {
       <PanelHeader>Название</PanelHeader>
 
       {/* Блок профиля */}
-      <Group>
+      <Group >
         <Div
           style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
+        
             paddingBottom: "0",
           }}
         >
@@ -54,6 +55,7 @@ const MainScreen = ({ user, go }) => {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
+            height: '175px',
           }}
         >
           <Div style={{ display: "flex", flexDirection: "column" }}>
@@ -67,8 +69,8 @@ const MainScreen = ({ user, go }) => {
       </Group>
 
       {/* Навигационные кнопки */}
-      <Div style={{ paddingLeft: "0px" }}>
-        <Div
+      <Div style={{ padding:0 }}>
+        <Group
           style={{
             display: "flex",
             flexDirection: "column",
@@ -82,8 +84,8 @@ const MainScreen = ({ user, go }) => {
             style={{
               cursor: "pointer",
               display: "flex",
-              paddingLeft: "14px",
-              color: "black",
+              paddingLeft: "30px",
+             
               justifyContent: "flex-start",
             }}
             size="l"
@@ -112,7 +114,7 @@ const MainScreen = ({ user, go }) => {
             style={{
               cursor: "pointer",
               display: "flex",
-              color: "black",
+              paddingLeft: "32px",
               justifyContent: "flex-start",
             }}
             size="l"
@@ -139,7 +141,7 @@ const MainScreen = ({ user, go }) => {
               Полученные валентинки
             </span>
           </Div>
-        </Div>
+        </Group>
       </Div>
 
       {/* Навигационная панель */}

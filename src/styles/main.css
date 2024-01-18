@@ -8,8 +8,7 @@
   display: flex;
 }
 .nav__button {
-  color: black;
-  background-color: white;
+
   border: 10px;
   padding-top: 0;
   padding-bottom: 0;
@@ -21,10 +20,14 @@
 
 .custom-notification {
     border-radius: 10px;
-    margin-left: 16px;
-    margin-right: 16px;
+    position: relative;
+    max-height: 20px;
+    margin-left: 50px;
+    margin-right: 50px;
+    margin-top: -200px;
     display: flex;
     justify-content: center;
+    align-items: center;
     background-color: #ff3448;
     color: white;
     opacity: 1;

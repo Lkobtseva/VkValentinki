@@ -3,8 +3,8 @@
   /* Стили для поисковой строки */
   .search-bar {
     
-    background-color: #fff;
-    border-bottom: 1px solid #ccc;
+    /*background-color: #fff;
+    border-bottom: 1px solid #ccc;*/
     padding: 10px 15px 10px;
     text-align: center;
   }
