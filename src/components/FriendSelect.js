@@ -63,11 +63,12 @@ export default function SendValentineFriendSelect({
   }
 
   // Фильтрация друзей по поисковому запросу
-  const filteredFriends = friends.filter(
-    (friend) =>
-      friend.first_name.toLowerCase().startsWith(searchTerm.toLowerCase()) ||
-      friend.last_name.toLowerCase().startsWith(searchTerm.toLowerCase())
-  );
+  const filteredFriends = friends.filter((friend) => {
+    const fullName = `${friend.first_name} ${friend.last_name}`.toLowerCase();
+    const trimmedSearchTerm = searchTerm.trim().toLowerCase();
+  
+    return fullName.includes(trimmedSearchTerm);
+  });
   // выбор друга сердечком
   const getHeartIconClass = (friendId) => {
     return selected.includes(friendId) ? "heart-icon_selected" : "";

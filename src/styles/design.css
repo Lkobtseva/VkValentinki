@@ -33,7 +33,11 @@
   }
   .design__input{
     height: 200px;
+    background-image: url('../images/baseVal.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
   }
+  
   @media screen and (min-height: 600px) {
     .design__page{
         padding-top: 0;
@@ -62,4 +66,4 @@
             margin-left: auto;
         }
         }
-  
+ 

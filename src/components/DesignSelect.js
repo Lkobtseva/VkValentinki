@@ -95,12 +95,13 @@ const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                border: "2px #ff3347 solid",
+                border: "2px solid rgb(193 192 192)",
                 borderRadius: "10px",
+                
               }}
             >
               {selectedBackground && (
-                <img
+                <img className="baseBackground"
                   src={selectedBackground.image_background}
                   style={{
                     position: "absolute",
@@ -204,14 +205,16 @@ const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
             <Button
               style={{
                 color: "white",
-                backgroundColor: "#FF3347",
+                backgroundColor: selectedBackground && selectedValentine ? "#FF3347" : '#c1c0c0',
                 maxWidth: "250px",
                 marginLeft: "auto",
                 marginRight: "auto",
                 marginTop: "10px",
+
               }}
               size="l"
               stretched
+              disabled={!setSelectedBackground && !setSelectedValentine}
               onClick={handleSelectDesign}
             >
               Далее

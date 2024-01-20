@@ -258,7 +258,7 @@ const MyValentinesScreen = ({ id, go }) => {
                     marginBottom: "3px",
                   }}
                 >
-                  {sender.firstName} {sender.lastName}
+                  {valentine.isAnonymous ? "Аноним" : `${sender.firstName} ${sender.lastName}`}
                 </h2>
                 <p
                   style={{
@@ -268,7 +268,7 @@ const MyValentinesScreen = ({ id, go }) => {
                     marginBottom: "0",
                   }}
                 >
-                  Отправил вам валентинку
+                   {valentine.match ? "У вас взаимная валентинка" : "Отправил вам валентинку"}
                 </p>
                 <p
                   style={{

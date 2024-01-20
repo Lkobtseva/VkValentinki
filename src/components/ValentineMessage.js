@@ -15,6 +15,7 @@ import {
 import "../styles/main.css";
 import Navigator from "./Navigator";
 import "../styles/message.css";
+import { MAX_GRID_LENGTH } from "@vkontakte/vkui/dist/components/GridAvatar/GridAvatar";
 
 const SendValentineMessage = ({ go, onSend, onSelectMessage, onNext }) => {
   const [text, setText] = useState("");
@@ -27,6 +28,8 @@ const SendValentineMessage = ({ go, onSend, onSelectMessage, onNext }) => {
     console.log("message:", text);
   };
 
+  const MAX_TEXT_LENGTH = 120; // Максимальное количество символов
+
   return (
     <Panel id={"sendingMessage"}>
       <PanelHeader>Напишите сообщение</PanelHeader>
@@ -38,6 +41,7 @@ const SendValentineMessage = ({ go, onSend, onSelectMessage, onNext }) => {
             placeholder="Текст сообщения"
             value={text}
             onChange={(e) => setText(e.target.value)}
+            maxLength={MAX_TEXT_LENGTH}
           />
         </Div>
         <Div
@@ -52,31 +56,27 @@ const SendValentineMessage = ({ go, onSend, onSelectMessage, onNext }) => {
             style={{
               display: "flex",
               flexDirection: "column",
-              marginLeft: "-40px",
+              marginLeft: "-30px",
+              paddingTop: 0,
             }}
           >
-            <Div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                marginBottom: "-20px",
-              }}
-            >
-              <Checkbox
-                checked={isAnon}
-                onChange={(e) => setIsAnon(e.target.checked)}
-              />
-              <p style={{ marginLeft: "8px" }}>Да</p>
+                <Div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    marginBottom: "-20px",
+                  }}
+                >
+                  <Switch
+                    checked={isAnon}
+                    onChange={() => setIsAnon(!isAnon)}
+                  />
+                  <p style={{ marginLeft: "8px" }}>{isAnon ? "Да" : "Нет"}</p>
+                </Div>
+              </Div>
             </Div>
-            <Div style={{ display: "flex", alignItems: "center" }}>
-              <Checkbox
-                checked={!isAnon}
-                onChange={(e) => setIsAnon(!e.target.checked)}
-              />
-              <p style={{ marginLeft: "8px" }}>Нет</p>
-            </Div>
-          </Div>
-        </Div>
+
+ 
         <Div>
           <Button
             style={{
