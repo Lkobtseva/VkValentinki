@@ -12,7 +12,6 @@ import {
 import "../styles/main.css";
 import Navigator from "./Navigator";
 import vkApi from "../utils/Api";
-//import "../styles/friends.css";
 
 export default function SendValentineFriendSelect({
   onNext,
@@ -23,10 +22,12 @@ export default function SendValentineFriendSelect({
   const [selected, setSelected] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFriendId, setSelectedFriendId] = useState(null);
+  const [sentValentines, setSentValentines] = useState([]);
+  const [recipientsData, setRecipientsData] = useState([]);
+  const [popupVisible, setPopupVisible] = useState(false);
 
   const handleSelectFriend = () => {
     onSelectFriend(selectedFriendId);
-    console.log(selectedFriendId);
     onNext();
   };
 
@@ -51,6 +52,85 @@ export default function SendValentineFriendSelect({
     loadFriends();
   }, [[setSelectedFriendId]]);
 
+  useEffect(() => {
+    const getSentValentines = async () => {
+      const configString = window.location.href;
+      const url = new URL(configString);
+      const params = url.searchParams;
+      const signature = params.get("sign");
+
+      //получаем AuthString
+      function getAuthString() {
+        const VK_PREFIX = "vk_";
+        const url = new URL(window.location.href);
+        const params = url.searchParams;
+
+        return params
+          .toString()
+          .split("&")
+          .filter((p) => p.startsWith(VK_PREFIX))
+          .sort()
+          .join("&");
+      }
+      const authString = getAuthString();
+
+      // Получение ID отправителя
+      const userInfo = await vkApi.getUserInfo();
+      const userSenderVkId = userInfo.id.toString();
+
+      try {
+        const response = await fetch(
+          "https://valentine.itc-hub.ru/api/v1/getvalentinesend",
+          {
+            method: "POST",
+            headers: {
+              Authorization: authString,
+              Sign: signature,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              vk_id: userSenderVkId,
+            }),
+          }
+        );
+
+        const data = await response.json();
+        // Преобразуем ответ в нужный формат
+        const valentine = data.map((item) => ({
+          id: item.id,
+          recipientId: item.user_recipient_vk_id,
+          text: item.text,
+          isAnonymous: item.anonim,
+          backgroundId: item.background_id,
+          imageId: item.valentine_id,
+        }));
+
+        const idsArray = valentine.map((v) => v.recipientId);
+        const ids = idsArray.join(",");
+
+        const getUsersById = await vkApi.getUserInfoById(ids);
+
+        if (getUsersById && getUsersById.length > 0) {
+          const recipientsData = getUsersById.map((user) => ({
+            userId: user.id,
+            firstName: user.first_name,
+            lastName: user.last_name,
+          }));
+
+          setRecipientsData(recipientsData);
+        } else {
+          console.error("Error getting user info or empty response");
+        }
+
+        setSentValentines(valentine);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    getSentValentines();
+  }, []);
+
   function toggleSelect(friendId) {
     if (selected.includes(friendId)) {
       setSelected([]);
@@ -59,14 +139,44 @@ export default function SendValentineFriendSelect({
       const newSelected = [friendId];
       setSelected(newSelected);
       setSelectedFriendId(friendId);
+
+      // Проверка наличия выбранного друга в recipientsData
+      const selectedFriend = recipientsData.find(
+        (recipient) => recipient.userId === friendId
+      );
+      if (selectedFriend) {
+        setPopupVisible(true); // Установка видимости попапа
+      }
     }
   }
+
+  // Функция для закрытия попапа
+  const closePopup = () => {
+    setPopupVisible(false);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const isClickInside = document
+        .getElementById("popup")
+        .contains(event.target);
+      if (!isClickInside) {
+        closePopup();
+      }
+    };
+    if (popupVisible) {
+      document.addEventListener("click", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [popupVisible]);
 
   // Фильтрация друзей по поисковому запросу
   const filteredFriends = friends.filter((friend) => {
     const fullName = `${friend.first_name} ${friend.last_name}`.toLowerCase();
     const trimmedSearchTerm = searchTerm.trim().toLowerCase();
-  
+
     return fullName.includes(trimmedSearchTerm);
   });
   // выбор друга сердечком
@@ -85,6 +195,33 @@ export default function SendValentineFriendSelect({
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
+      {popupVisible && (
+        <Div id="popup" className="popupContainer">
+          <Div className="popup__button" onClick={closePopup} />
+          <p
+            style={{
+              maxWidth: "250px",
+              textAlign: "center",
+              color: "white",
+              marginTop: "5px",
+              fontSize: "16px",
+            }}
+          >
+            Вы уже отправили валентинку этому другу.
+          </p>
+          <p
+            style={{
+              maxWidth: "250px",
+              textAlign: "center",
+              color: "white",
+              marginTop: "5px",
+              fontSize: "16px",
+            }}
+          >
+            Отправить можно только один раз.
+          </p>
+        </Div>
+      )}
       <Group
         className="group-container"
         style={{
@@ -110,7 +247,7 @@ export default function SendValentineFriendSelect({
               {friend.first_name} {friend.last_name}
             </div>
             <div className={getHeartIconClass(friend.id)}></div>
-            {selected.includes(friend.id) && (
+            {selected.includes(friend.id) && !popupVisible && (
               <Button
                 className="select-button"
                 style={{
@@ -124,7 +261,6 @@ export default function SendValentineFriendSelect({
             )}
           </Div>
         ))}
-      
       </Group>
       <Navigator go={go} />
     </Panel>

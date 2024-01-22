@@ -19,22 +19,21 @@ import Navigator from "./Navigator";
 const MainScreen = ({ user, go }) => {
   return (
     <Panel id={"main"}>
-      <PanelHeader>Название</PanelHeader>
+      <PanelHeader>Valentinki</PanelHeader>
 
       {/* Блок профиля */}
-      <Group >
+      <Group>
         <Div
           style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-        
             paddingBottom: "0",
           }}
         >
           <Div style={{ display: "flex", alignItems: "center" }}>
             <Avatar
-              style={{ border: "5px solid #FF3347" }}
+              style={{ border: "2px solid #FF3347" }}
               src={user && user.photo_200}
               size={80}
             />
@@ -55,7 +54,7 @@ const MainScreen = ({ user, go }) => {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            height: '175px',
+            height: "175px",
           }}
         >
           <Div style={{ display: "flex", flexDirection: "column" }}>
@@ -69,12 +68,11 @@ const MainScreen = ({ user, go }) => {
       </Group>
 
       {/* Навигационные кнопки */}
-      <Div style={{ padding:0 }}>
+      <Div style={{ padding: 0 }}>
         <Group
           style={{
             display: "flex",
             flexDirection: "column",
-            //gap: "10px",
             justifyContent: "space-between",
           }}
         >
@@ -85,7 +83,7 @@ const MainScreen = ({ user, go }) => {
               cursor: "pointer",
               display: "flex",
               paddingLeft: "30px",
-             
+
               justifyContent: "flex-start",
             }}
             size="l"

@@ -1,13 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import {
   ConfigProvider,
   AdaptivityProvider,
   AppRoot,
   View,
-  ModalRoot,
-  ModalPage,
-  Toast,
 } from "@vkontakte/vkui";
 import "@vkontakte/vkui/dist/vkui.css";
 import "./index.css";
@@ -23,7 +20,6 @@ import vkApi from "./utils/Api";
 
 const App = () => {
   const [activeView, setActiveView] = useState("tutorial");
-  const [popout, setPopout] = useState(null);
   const [tutorialStep, setTutorialStep] = useState(1);
   const [user, setUser] = useState({});
   const [userFriends, setUserFriends] = useState([]);
@@ -32,26 +28,6 @@ const App = () => {
   const [BackgroundId, setBackgroundId] = useState(null);
   const [message, setMessage] = useState("");
   const [isAnonymous, setAnonymous] = useState(false);
-
-  const nextTutorialStep = () => {
-    setTutorialStep((prevStep) => prevStep + 1);
-  };
-
-  const handleSelectDesign = (selectedValentineId, selectedBackgroundId) => {
-    setValentineId(selectedValentineId);
-    setBackgroundId(selectedBackgroundId);
-  };
-
-  const handleSelectFriend = (selectedFriendId) => {
-    setFriendId(selectedFriendId);
-  };
-
-  const handleSelectMessage = (text, isAnon) => {
-    setMessage(text);
-    setAnonymous(isAnon);
-
-    sendValentineToBackend();
-  };
 
   //инициализация приложения
   useEffect(() => {
@@ -63,7 +39,6 @@ const App = () => {
         const userInfo = await vkApi.getUserInfo();
         if (isMounted) {
           setUser(userInfo);
-          setPopout(null);
         }
       } catch (error) {
         console.error(error);
@@ -81,11 +56,31 @@ const App = () => {
     setActiveView(view);
   };
 
-  const onCloseModal = () => setPopout(null);
+  const nextTutorialStep = () => {
+    setTutorialStep((prevStep) => prevStep + 1);
+  };
+
+  const handleSelectDesign = (selectedValentineId, selectedBackgroundId) => {
+    setValentineId(selectedValentineId);
+    setBackgroundId(selectedBackgroundId);
+  };
+
+  const handleSelectFriend = (selectedFriendId) => {
+    setFriendId(selectedFriendId);
+  };
+
+  const handleSelectMessage = (text, isAnon) => {
+    setMessage(text);
+    setAnonymous(isAnon);
+  };
+
+  //чтобы убедиться, что все корректно установилось
+  useEffect(() => {
+    sendValentineToBackend();
+  }, [message, isAnonymous]);
 
   //отправка валентинки
   const sendValentineToBackend = async () => {
-    //получаем sign
     const configString = window.location.href;
     const url = new URL(configString);
     const params = url.searchParams;
@@ -131,17 +126,7 @@ const App = () => {
         }
       );
 
-      console.log("Sending to server:", {
-        message,
-        isAnonymous,
-        friendId,
-        ValentineId,
-        BackgroundId,
-      });
-
       if (response.ok) {
-
-        // Создание контейнера для компонента
         const container = document.createElement("div");
         document.body.appendChild(container);
 
@@ -154,7 +139,6 @@ const App = () => {
           />
         );
         ReactDOM.render(customNotification, container);
-        console.log("Данные успешно отправлены на бэкенд");
       } else {
         console.error("Ошибка при отправке данных на бэкенд");
       }
@@ -163,14 +147,11 @@ const App = () => {
     }
   };
 
-
   return (
     <ConfigProvider>
       <AdaptivityProvider>
         <AppRoot>
-          <View activePanel={activeView} popout={popout}>
-		  
-
+          <View activePanel={activeView}>
             <Tutorial
               id="tutorial"
               tutorialStep={tutorialStep}
@@ -207,8 +188,6 @@ const App = () => {
       </AdaptivityProvider>
     </ConfigProvider>
   );
-
-  
 };
 
 export default App;

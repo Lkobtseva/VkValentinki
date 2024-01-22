@@ -7,8 +7,6 @@ import {
   Gallery,
   Avatar,
   Button,
-  HorizontalScroll,
-  Cell,
 } from "@vkontakte/vkui";
 import "../styles/design.css";
 import Navigator from "./Navigator";
@@ -82,10 +80,10 @@ const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
   return (
     <Panel id="design">
       <PanelHeader>Выберите дизайн</PanelHeader>
-      <Div style={{ paddingLeft: "0", paddingRight: "0" }}>
+      <Div style={{ paddingLeft: "0", paddingRight: "0", }}>
         <Div
           className="design__page"
-          style={{ paddingLeft: "0", paddingRight: "0" }}
+          style={{ paddingLeft: "0", paddingRight: "0", maxHeight:'800px', overflowY: 'auto'  }}
         >
           <Div>
             <Div
@@ -97,11 +95,11 @@ const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
                 alignItems: "center",
                 border: "2px solid rgb(193 192 192)",
                 borderRadius: "10px",
-                
               }}
             >
               {selectedBackground && (
-                <img className="baseBackground"
+                <img
+                  className="baseBackground"
                   src={selectedBackground.image_background}
                   style={{
                     position: "absolute",
@@ -171,8 +169,7 @@ const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
             <Div
               style={{
                 marginTop: 0,
-                //backgroundColor: "#EBEDF0",
-                padding: "20px 0px 0px",
+                padding: "0px 0px 0px",
               }}
             >
               <Gallery
@@ -201,16 +198,18 @@ const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
               </Gallery>
             </Div>
           </Div>
-          <Div>
+          <Div style={{marginBottom:'100px'}}>
             <Button
               style={{
                 color: "white",
-                backgroundColor: selectedBackground && selectedValentine ? "#FF3347" : '#c1c0c0',
+                backgroundColor:
+                  selectedBackground && selectedValentine
+                    ? "#FF3347"
+                    : "#c1c0c0",
                 maxWidth: "250px",
                 marginLeft: "auto",
                 marginRight: "auto",
                 marginTop: "10px",
-
               }}
               size="l"
               stretched

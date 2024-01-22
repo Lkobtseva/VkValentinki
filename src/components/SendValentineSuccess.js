@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
-import {  Div, } from "@vkontakte/vkui";
+import { Div } from "@vkontakte/vkui";
 import "../styles/main.css";
 
-const CustomNotification = ({ recipientName, onClose }) => {
+const CustomNotification = ({ onClose }) => {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       onClose();
@@ -13,7 +13,7 @@ const CustomNotification = ({ recipientName, onClose }) => {
 
   return (
     <Div className="custom-notification">
-      <p>Валентинка успешно отправлена!</p>
+      <p style={{ textAlign: "center" }}>Валентинка успешно отправлена!</p>
     </Div>
   );
 };

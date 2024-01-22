@@ -2,7 +2,6 @@ import { React, useState, useEffect } from "react";
 
 import PropTypes from "prop-types";
 import {
-  Group,
   Div,
   FixedLayout
 } from "@vkontakte/vkui";
@@ -24,6 +23,7 @@ const Navigator = ({ go }) => {
 
     setIsSend(!!(designElement || friendElement || sendingMessageElement));
   }, []);
+  
   return (
     <FixedLayout filled vertical="bottom"
       id={"navigator"}

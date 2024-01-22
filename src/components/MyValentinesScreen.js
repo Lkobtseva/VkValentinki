@@ -1,14 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import {
-  Panel,
-  PanelHeader,
-  Gallery,
-  Avatar,
-  Group,
-  Button,
-  Div,
-} from "@vkontakte/vkui";
+import { Panel, PanelHeader, Avatar, Button, Div } from "@vkontakte/vkui";
 import Navigator from "./Navigator";
 import "../styles/main.css";
 import vkApi from "../utils/Api";
@@ -22,7 +14,6 @@ const MyValentinesScreen = ({ id, go }) => {
   const [sendersData, setSendersData] = useState([]);
   const [selectedValentine, setSelectedValentine] = useState(null);
   const [popupOpen, setPopupOpen] = useState(false);
-  const [avatars, setAvatars] = useState([]);
 
   useEffect(() => {
     const getSentValentines = async () => {
@@ -93,7 +84,6 @@ const MyValentinesScreen = ({ id, go }) => {
           }));
 
           setSendersData(sendersData);
-          console.log("senders:", sendersData);
         } else {
           console.error("Error getting user info or empty response");
         }
@@ -134,7 +124,6 @@ const MyValentinesScreen = ({ id, go }) => {
           ...background,
           image_background: `https://valentine.itc-hub.ru${background.image_background}`,
         }));
-        console.log("фоны;", backgroundsWithFullPaths);
         setValentines(valentinesWithFullPaths);
         setBackgrounds(backgroundsWithFullPaths);
       } catch (error) {
@@ -146,20 +135,32 @@ const MyValentinesScreen = ({ id, go }) => {
   }, []);
 
   const openPopup = (valentineId) => {
-    console.log("Opening popup for valentineId:", valentineId);
-
     const valentines = receivedValentines.find((v) => v.id === valentineId);
-    console.log("Selected valentine:", valentines);
-
     setSelectedValentine(valentines);
-    console.log("Selected Valentine:", selectedValentine);
-    console.log("Popup should be opened now");
+
     setPopupOpen(true);
   };
 
   const closePopup = () => {
     setPopupOpen(false);
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const isClickInside = document
+        .getElementById("popup")
+        .contains(event.target);
+      if (!isClickInside) {
+        closePopup();
+      }
+    };
+    if (popupOpen) {
+      document.addEventListener("click", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [popupOpen]);
 
   const renderReceivedValentines = () => {
     return receivedValentines.map((valentine) => {
@@ -258,7 +259,9 @@ const MyValentinesScreen = ({ id, go }) => {
                     marginBottom: "3px",
                   }}
                 >
-                  {valentine.isAnonymous ? "Аноним" : `${sender.firstName} ${sender.lastName}`}
+                  {valentine.isAnonymous
+                    ? "Аноним"
+                    : `${sender.firstName} ${sender.lastName}`}
                 </h2>
                 <p
                   style={{
@@ -268,7 +271,9 @@ const MyValentinesScreen = ({ id, go }) => {
                     marginBottom: "0",
                   }}
                 >
-                   {valentine.match ? "У вас взаимная валентинка" : "Отправил вам валентинку"}
+                  {valentine.match
+                    ? "У вас взаимная валентинка"
+                    : "Отправил вам валентинку"}
                 </p>
                 <p
                   style={{
@@ -314,6 +319,7 @@ const MyValentinesScreen = ({ id, go }) => {
         {renderReceivedValentines()}
         {popupOpen && (
           <Div
+            id="popup"
             onClose={closePopup}
             style={{
               position: "fixed",
@@ -323,7 +329,7 @@ const MyValentinesScreen = ({ id, go }) => {
               position: "fixed",
               backgroundColor: "white",
               transform: "translate(-50%, -50%)",
-              padding: "0px 10px 20px",
+              padding: "0px 0px 0px",
               borderRadius: "10px",
               display: "flex",
               justifyContent: "center",
@@ -350,11 +356,29 @@ const MyValentinesScreen = ({ id, go }) => {
                 }`}
                 alt="Background"
                 style={{
+                  width: "100%",
+                  height: "100%",
+                  //top: "14%",
+                  objectFit: "cover",
+                  position: "absolute",
+                  borderRadius: "10px",
+                  opacity: "0.2",
+                }}
+              />
+              <img
+                src={`${
+                  backgrounds.find(
+                    (b) => b.id === selectedValentine.backgroundId
+                  )?.image_background
+                }`}
+                alt="Background"
+                style={{
                   width: "80%",
                   top: "14%",
                   objectFit: "cover",
                   position: "absolute",
                   borderRadius: "10px",
+                  border: "1px solid rgb(193 193 193)",
                 }}
               />
               <img
@@ -380,6 +404,8 @@ const MyValentinesScreen = ({ id, go }) => {
                 marginLeft: "auto",
                 marginRight: "auto",
                 textAlign: "center",
+                color: "black",
+                zIndex: 3,
               }}
             >
               {selectedValentine.text}
@@ -388,8 +414,9 @@ const MyValentinesScreen = ({ id, go }) => {
               style={{
                 color: "white",
                 backgroundColor: "#FF3347",
-                marginLeft: 'auto',
-    marginRight: 'auto',
+                marginLeft: "auto",
+                marginRight: "auto",
+                marginBottom: "10px",
               }}
               onClick={closePopup}
             >

@@ -1,15 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Panel,
-  PanelHeader,
-  Card,
-  Avatar,
-  Button,
-  PopoutWrapper,
-  Popup,
-  FixedLayout,
-  Div,
-} from "@vkontakte/vkui";
+import { Panel, PanelHeader, Button, FixedLayout, Div } from "@vkontakte/vkui";
 import vkApi from "../utils/Api";
 import Navigator from "./Navigator";
 import "../styles/nav.css";
@@ -130,7 +120,6 @@ const SentValentinesScreen = ({ id, go }) => {
           ...background,
           image_background: `https://valentine.itc-hub.ru${background.image_background}`,
         }));
-        console.log("фоны;", backgroundsWithFullPaths);
         setValentines(valentinesWithFullPaths);
         setBackgrounds(backgroundsWithFullPaths);
       } catch (error) {
@@ -142,19 +131,32 @@ const SentValentinesScreen = ({ id, go }) => {
   }, []);
 
   const openPopup = (valentineId) => {
-    console.log("Opening popup for valentineId:", valentineId);
-
     const valentines = sentValentines.find((v) => v.id === valentineId);
-    console.log("Selected valentine:", valentines);
 
     setSelectedValentine(valentines);
-    console.log("Popup should be opened now");
     setPopupOpen(true);
   };
 
   const closePopup = () => {
     setPopupOpen(false);
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const isClickInside = document
+        .getElementById("popup")
+        .contains(event.target);
+      if (!isClickInside) {
+        closePopup();
+      }
+    };
+    if (popupOpen) {
+      document.addEventListener("click", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [popupOpen]);
 
   const renderSentValentines = () => {
     return sentValentines.map((valentine) => {
@@ -220,6 +222,7 @@ const SentValentinesScreen = ({ id, go }) => {
         {renderSentValentines()}
         {popupOpen && (
           <Div
+            id="popup"
             onClose={closePopup}
             style={{
               position: "fixed",
@@ -229,7 +232,7 @@ const SentValentinesScreen = ({ id, go }) => {
               position: "fixed",
               backgroundColor: "white",
               transform: "translate(-50%, -50%)",
-              padding: "0px 10px 20px",
+              padding: "0px 0px 00px",
               borderRadius: "10px",
               display: "flex",
               justifyContent: "center",
@@ -256,11 +259,29 @@ const SentValentinesScreen = ({ id, go }) => {
                 }`}
                 alt="Background"
                 style={{
+                  width: "100%",
+                  height: "100%",
+                  //top: "14%",
+                  objectFit: "cover",
+                  position: "absolute",
+                  borderRadius: "10px",
+                  opacity: "0.2",
+                }}
+              />
+              <img
+                src={`${
+                  backgrounds.find(
+                    (b) => b.id === selectedValentine.backgroundId
+                  )?.image_background
+                }`}
+                alt="Background"
+                style={{
                   width: "80%",
                   top: "14%",
                   objectFit: "cover",
                   position: "absolute",
                   borderRadius: "10px",
+                  border: "1px solid rgb(193 193 193)",
                 }}
               />
               <img
@@ -286,6 +307,8 @@ const SentValentinesScreen = ({ id, go }) => {
                 marginLeft: "auto",
                 marginRight: "auto",
                 textAlign: "center",
+                color: "black",
+                zIndex: "3",
               }}
             >
               {selectedValentine.text}
@@ -294,8 +317,9 @@ const SentValentinesScreen = ({ id, go }) => {
               style={{
                 color: "white",
                 backgroundColor: "#FF3347",
-                marginLeft: 'auto',
-    marginRight: 'auto',
+                marginLeft: "auto",
+                marginRight: "auto",
+                marginBottom: "10px",
               }}
               onClick={closePopup}
             >
