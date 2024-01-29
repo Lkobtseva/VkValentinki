@@ -219,7 +219,11 @@ const SentValentinesScreen = ({ id, go }) => {
         <PanelHeader>Отправленные</PanelHeader>
       </FixedLayout>
       <Div style={{ paddingTop: "70px", paddingBottom: "100px" }}>
-        {renderSentValentines()}
+      {sentValentines.length === 0 ? (
+        <p style={{ textAlign: "center", color: '#6d7885' }}>Пока что вы не отправили ни одной валентинки</p>
+      ) : (
+        renderSentValentines()
+      )}
         {popupOpen && (
           <Div
             id="popup"

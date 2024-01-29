@@ -23,7 +23,9 @@
 .background__icon:active {
     filter: brightness(0.8); 
   }
-
+.background__icon{
+    border: 1px solid #c2bebe;
+}
   .design__page {
     padding-left: 0px;
     padding-right: 0px;
@@ -34,9 +36,10 @@
   }
   .design__input{
     height: 200px;
-    background-image: url('../images/baseVal.jpg');
+    background-image: url('../images/baseVal.svg');
     background-repeat: no-repeat;
     background-size: cover;
+    background-position: left;
   }
   
   @media screen and (min-height: 600px) {
@@ -67,4 +70,7 @@
             margin-left: auto;
         }
         }
- 
+        .selected {
+            border: 1.5px solid #ff3347;
+          }
+          

@@ -87,7 +87,7 @@ const MainScreen = ({ user, go }) => {
               justifyContent: "flex-start",
             }}
             size="l"
-            stretched
+          
             onClick={() => go("SentValentines", "sent")}
           >
             <Div style={{ paddingLeft: "0px" }}>
@@ -116,7 +116,7 @@ const MainScreen = ({ user, go }) => {
               justifyContent: "flex-start",
             }}
             size="l"
-            stretched
+        
             onClick={() => go("myValentines", "received")}
           >
             <Div style={{ paddingLeft: "0px", marginLeft: "-1px" }}>

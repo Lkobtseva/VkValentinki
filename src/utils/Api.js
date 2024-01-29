@@ -8,9 +8,9 @@ class VkApi {
 
   async init() {
     try {
-      const authData = await bridge.send("VKWebAppGetAuthToken", {
+const authData = await bridge.send("VKWebAppGetAuthToken", {
         app_id: 51826188,
-        scope: "friends",
+        scope:'',
       });
       this._token = authData.access_token;
 
@@ -129,9 +129,25 @@ class VkApi {
     }
   }
 
+async requestFriendsPermission() {
+
+    try {
+      // Запрашиваем токен с разрешением на доступ к списку друзей
+      const data = await bridge.send("VKWebAppGetAuthToken", {
+        app_id: 51826188,
+        scope: 'friends',
+      });
+      this._token = data.access_token;
+      console.log('sending permission')
+    } catch (error) {
+        console.error("Error requesting friends permission:", error);
+    }
+}
 
   async getFriends() {
     try {
+    await this.requestFriendsPermission();
+      
       const friends = await bridge.send("VKWebAppCallAPIMethod", {
         method: "friends.get",
         params: {

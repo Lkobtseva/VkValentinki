@@ -173,7 +173,9 @@ const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
                     }}
                   >
                     <Avatar
-                      className="background__icon"
+                       className={`background__icon ${
+                        selectedBackgroundId === background.id ? "selected" : ""
+                      }`}
                       size={55}
                       mode="app"
                       src={background.icon_background}
@@ -181,7 +183,7 @@ const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
                         setSelectedBackground(background);
                         handleBackgroundClick(background.id);
                       }}
-                      style={{ cursor: "pointer", border: "1px solid #c2bebe" }}
+                      style={{ cursor: "pointer" }}
                     />
                   </Div>
                 ))}
@@ -205,7 +207,9 @@ const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
                     style={{ marginRight: "20px", padding: 0 }}
                   >
                     <Avatar
-                      className="background__icon"
+                       className={`background__icon ${
+                        selectedValentineId === valentine.id ? "selected" : ""
+                      }`}
                       size={100}
                       mode="app"
                       src={valentine.icon_valentine}

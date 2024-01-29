@@ -343,7 +343,11 @@ const MyValentinesScreen = ({ id, go }) => {
     <Panel id={"myValentines"}>
       <PanelHeader>Полученные</PanelHeader>
       <Div style={{ paddingTop: "15px" }}>
-        {renderReceivedValentines()}
+      {receivedValentines.length === 0 ? (
+        <p style={{ textAlign: "center", color: '#6d7885' }}>Пока что у вас нет полученных валентинок</p>
+      ) : (
+        renderReceivedValentines()
+      )}
         {popupOpen && (
           <Div
             id="popup"
