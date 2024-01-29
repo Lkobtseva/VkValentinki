@@ -54,7 +54,6 @@ class VkApi {
 
         return null;
       }
-      console.log("ids", ids);
       const response = await bridge.send("VKWebAppCallAPIMethod", {
         method: "users.get",
         params: {
@@ -67,14 +66,13 @@ class VkApi {
       });
 
       const userInfo = response.response;
-      console.log("userInfo:", response);
-      if (userInfo && userInfo.length > 0) {
-        userInfo.forEach(user => {
+    if (userInfo && userInfo.length > 0) {
+       userInfo.forEach(user => {
           const firstName = user.first_name;
           const lastName = user.last_name;
       
           if (firstName && lastName) {
-            console.log(`Пользователь: ${firstName} ${lastName}`);
+            //console.log(`Пользователь: ${firstName} ${lastName}`);
           } else {
             console.error("Отсутствуют данные о пользователе или не хватает свойств");
           }
@@ -97,7 +95,6 @@ class VkApi {
 
         return null;
       }
-      console.log("ids", ids);
       const response = await bridge.send("VKWebAppCallAPIMethod", {
         method: "users.get",
         params: {
@@ -110,17 +107,16 @@ class VkApi {
       });
 
       const userInfo = response.response;
-      console.log("userInfo:", response);
       if (userInfo && userInfo.length > 0) {
         userInfo.forEach(user => {
           const firstName = user.first_name;
           const lastName = user.last_name;
       
-          if (firstName && lastName) {
+          /*if (firstName && lastName) {
             console.log(`Пользователь: ${firstName} ${lastName}`);
           } else {
             console.error("Отсутствуют данные о пользователе или не хватает свойств");
-          }
+          }*/
         });
       return userInfo;
       } else {
@@ -148,7 +144,6 @@ class VkApi {
 
       return friends.response;
     } catch (error) {
-      console.error("Error getting friends:", error);
       return null;
     }
   }

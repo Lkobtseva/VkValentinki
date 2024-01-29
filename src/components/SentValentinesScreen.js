@@ -291,7 +291,7 @@ const SentValentinesScreen = ({ id, go }) => {
                 }`}
                 alt="Background"
                 style={{
-                  width: "50%",
+                  width: "80%",
                   top: "14%",
                   height: "auto",
                   objectFit: "cover",
@@ -302,7 +302,7 @@ const SentValentinesScreen = ({ id, go }) => {
             </Div>
             <p
               style={{
-                marginTop: "65%",
+                marginTop: "70%",
                 maxWidth: "300px",
                 marginLeft: "auto",
                 marginRight: "auto",

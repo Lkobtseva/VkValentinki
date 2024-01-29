@@ -19,7 +19,22 @@ const SendValentineMessage = ({ go, onSelectMessage, onNext }) => {
 
   const handleSelectMessage = () => {
     onSelectMessage(text, isAnon);
+    localStorage.removeItem("selectedValentine");
+    localStorage.removeItem("selectedBackground");
     onNext();
+  };
+
+  const handleGoBack = () => {
+    const selectedValentine = JSON.parse(
+      localStorage.getItem("selectedValentine","selectedValentineId" )
+    );
+    const selectedBackground = JSON.parse(
+      localStorage.getItem("selectedBackground", 'selectedBackgroundId')
+    );
+    const selectedValentineId = localStorage.getItem('selectedValentineId');
+  const selectedBackgroundId = localStorage.getItem('selectedBackgroundId');
+
+    go("design", { selectedValentine, selectedBackground, selectedBackgroundId,selectedValentineId });
   };
 
   const MAX_TEXT_LENGTH = 120; // Максимальное количество символов
@@ -80,6 +95,19 @@ const SendValentineMessage = ({ go, onSelectMessage, onNext }) => {
             go={go}
           >
             Отправить
+          </Button>
+          <Button
+            style={{
+              color: "white",
+              backgroundColor: "#FF3347",
+              marginTop: "15px",
+            }}
+            size="l"
+            stretched
+            onClick={handleGoBack}
+            go={go}
+          >
+            Назад
           </Button>
         </Div>
       </FormLayout>

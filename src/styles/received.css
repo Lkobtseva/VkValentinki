@@ -9,8 +9,9 @@
 
 }
 .heart_match {
-    background-image: url(../images/match.svg);
+    background-image: url(../images/matchHeart.svg);
     background-repeat: no-repeat;
+    background-size: contain;
 
 }
 .anon-avatar{

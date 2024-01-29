@@ -96,7 +96,7 @@
   border-radius: 10px;
   transform: translate(-50%, -50%);
   z-index: 3;
-  width: 80%;
+  width: 60%;
 }
 .popup__button{
 background-image: url(../images/Close.svg);

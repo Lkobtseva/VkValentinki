@@ -58,19 +58,39 @@ const MyValentinesScreen = ({ id, go }) => {
         );
 
         const data = await response.json();
-        // Преобразуем ответ в нужный формат
-        const valentine = data.map((item) => ({
+
+        const valentines = data.anonim || [];
+        const notAnonimValentines = data["not anonim"] || [];
+
+        // Обработка анонимных валентинок
+        const formattedValentines = valentines.map((item) => ({
           id: item.id,
-          senderId: item.user_sender_vk_id,
+          senderId: null, 
           text: item.text,
-          isAnonymous: item.anonim,
+          isAnonymous: true,
           backgroundId: item.background_id,
           imageId: item.valentine_id,
           createdTime: item.created,
           match: item.match,
         }));
 
-        const idsArray = valentine.map((v) => v.senderId);
+        // Обработка не анонимных валентинок
+        const notAnonimValentinesWithSenderInfo = notAnonimValentines.map(
+          (item) => ({
+            id: item.id,
+            senderId: item.user_sender_vk_id,
+            text: item.text,
+            isAnonymous: false,
+            backgroundId: item.background_id,
+            imageId: item.valentine_id,
+            createdTime: item.created,
+            match: item.match,
+          })
+        );
+
+        const idsArray = notAnonimValentinesWithSenderInfo.map(
+          (v) => v.senderId
+        );
         const ids = idsArray.join(",");
 
         const getUsersById = await vkApi.getSenderInfoById(ids);
@@ -87,8 +107,10 @@ const MyValentinesScreen = ({ id, go }) => {
         } else {
           console.error("Error getting user info or empty response");
         }
-
-        setReceivedValentines(valentine);
+        setReceivedValentines([
+          ...formattedValentines,
+          ...notAnonimValentinesWithSenderInfo,
+        ]);
       } catch (error) {
         console.error(error);
       }
@@ -186,8 +208,8 @@ const MyValentinesScreen = ({ id, go }) => {
         } else if (daysDifference === 1) {
           return "вчера";
         } else if (daysDifference > 1) {
-          return `${daysDifference} дня${
-            daysDifference > 1 && daysDifference < 5 ? " " : "ев "
+          return `${daysDifference} дн${
+            daysDifference > 1 && daysDifference < 4 ? "я " : "ей "
           }назад`;
         }
 
@@ -195,15 +217,18 @@ const MyValentinesScreen = ({ id, go }) => {
       }
 
       const formattedDate = formatRelativeDate(valentine.createdTime);
-      console.log(formattedDate);
 
-      const avatarStyle = valentine.isAnonymous
-        ? {
-            backgroundImage: `url(${anonim})`,
-            backgroundColor: "black",
-            backgroundSize: "cover",
-          }
-        : { backgroundImage: `url(${sender.avatar})` };
+      const avatarStyle = {
+        ...(valentine.isAnonymous
+          ? {
+              backgroundImage: `url(${anonim})`,
+              backgroundColor: "black",
+              backgroundSize: "cover",
+            }
+          : valentine.match || !valentine.isAnonymous
+          ? { backgroundImage: `url(${sender.avatar})` }
+          : {}),
+      };
 
       const getHeartClass = (valentine) => {
         let heartClass = "heart_basic";
@@ -260,7 +285,9 @@ const MyValentinesScreen = ({ id, go }) => {
                   }}
                 >
                   {valentine.isAnonymous
-                    ? "Аноним"
+                    ? valentine.match
+                      ? `${sender.firstName} ${sender.lastName}`
+                      : "Аноним"
                     : `${sender.firstName} ${sender.lastName}`}
                 </h2>
                 <p
@@ -388,7 +415,7 @@ const MyValentinesScreen = ({ id, go }) => {
                 }`}
                 alt="Background"
                 style={{
-                  width: "50%",
+                  width: "80%",
                   top: "14%",
                   height: "auto",
                   objectFit: "cover",
@@ -399,7 +426,7 @@ const MyValentinesScreen = ({ id, go }) => {
             </Div>
             <p
               style={{
-                marginTop: "65%",
+                marginTop: "70%",
                 maxWidth: "300px",
                 marginLeft: "auto",
                 marginRight: "auto",

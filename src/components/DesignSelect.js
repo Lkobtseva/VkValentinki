@@ -12,12 +12,30 @@ import "../styles/design.css";
 import Navigator from "./Navigator";
 
 const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
-  const [selectedValentine, setSelectedValentine] = useState(null);
-  const [selectedBackground, setSelectedBackground] = useState(null);
   const [valentines, setValentines] = useState([]);
   const [backgrounds, setBackgrounds] = useState([]);
-  const [selectedValentineId, setSelectedValentineId] = useState(null);
-  const [selectedBackgroundId, setSelectedBackgroundId] = useState(null);
+  const [selectedValentineId, setSelectedValentineId] = useState(() => {
+    const storedValentineId = localStorage.getItem('selectedValentineId');
+    return storedValentineId ? JSON.parse(storedValentineId) : null;
+  });
+  const [selectedBackgroundId, setSelectedBackgroundId] = useState(() => {
+    const storedBackgroundId = localStorage.getItem('selectedBackgroundId');
+    return storedBackgroundId ? JSON.parse(storedBackgroundId) : null;
+  });
+
+  const [selectedValentine, setSelectedValentine] = useState(() => {
+    const storedValentine = localStorage.getItem('selectedValentine');
+    return storedValentine ? JSON.parse(storedValentine) : null;
+  });
+
+  const [selectedBackground, setSelectedBackground] = useState(() => {
+    const storedBackground = localStorage.getItem('selectedBackground');
+    return storedBackground ? JSON.parse(storedBackground) : null;
+  });
+
+  const saveToLocalStorage = (key, value) => {
+    localStorage.setItem(key, JSON.stringify(value));
+  };
 
   useEffect(() => {
     async function fetchData() {
@@ -74,6 +92,10 @@ const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
 
   const handleSelectDesign = () => {
     onSelectDesign(selectedValentineId, selectedBackgroundId);
+    saveToLocalStorage('selectedValentineId', selectedValentineId);
+    saveToLocalStorage('selectedBackgroundId', selectedBackgroundId);
+    saveToLocalStorage('selectedValentine', selectedValentine);
+    saveToLocalStorage('selectedBackground', selectedBackground);
     onNext();
   };
 
@@ -105,7 +127,7 @@ const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
                     position: "absolute",
                     width: "100%",
                     height: "100%",
-                    borderRadius: "10px",
+                    borderRadius: "8px",
                     objectFit: "cover",
                   }}
                 />
@@ -213,7 +235,7 @@ const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
               }}
               size="l"
               stretched
-              disabled={!setSelectedBackground && !setSelectedValentine}
+              disabled={!selectedBackground && !selectedValentine}
               onClick={handleSelectDesign}
             >
               Далее

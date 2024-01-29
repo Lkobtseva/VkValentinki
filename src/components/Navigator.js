@@ -15,15 +15,15 @@ const Navigator = ({ go }) => {
     const mainPageElement = document.getElementById("main");
     const myValentinesScreen = document.getElementById("myValentines");
     const sentValentinesScreen = document.getElementById("SentValentines");
-    setIsMainPage(!!(mainPageElement || myValentinesScreen || sentValentinesScreen));
+    setIsMainPage(mainPageElement || myValentinesScreen || sentValentinesScreen);
 
     const designElement = document.getElementById("design");
     const friendElement = document.getElementById("friend");
     const sendingMessageElement = document.getElementById("sendingMessage");
 
-    setIsSend(!!(designElement || friendElement || sendingMessageElement));
+    setIsSend(designElement || friendElement || sendingMessageElement);
   }, []);
-  
+
   return (
     <FixedLayout filled vertical="bottom"
       id={"navigator"}
@@ -52,7 +52,7 @@ const Navigator = ({ go }) => {
             className={
               isSend
                 ? "navBar__button1_active"
-                : "" || isMainPage
+                : isMainPage
                 ? "navBar__button1"
                 : ""
             }
@@ -65,7 +65,7 @@ const Navigator = ({ go }) => {
             className={
               isSend
                 ? "send__span_active"
-                : "" || isMainPage
+                : isMainPage
                 ? "send__span"
                 : ""
             }
@@ -90,7 +90,7 @@ const Navigator = ({ go }) => {
             className={
               isMainPage
                 ? "navBar__button2_active"
-                : "" || isSend
+                : isSend
                 ? "navBar__button2"
                 : ""
             }
@@ -104,7 +104,7 @@ const Navigator = ({ go }) => {
             className={
               isMainPage
                 ? "profile__span_active"
-                : "" || isSend
+                : isSend
                 ? "profile__span"
                 : ""
             }

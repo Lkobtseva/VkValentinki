@@ -200,18 +200,19 @@ export default function SendValentineFriendSelect({
           <Div className="popup__button" onClick={closePopup} />
           <p
             style={{
-              maxWidth: "250px",
+              maxWidth: "220px",
               textAlign: "center",
               color: "white",
               marginTop: "5px",
               fontSize: "16px",
+              marginBottom:'10px'
             }}
           >
             Вы уже отправили валентинку этому другу.
           </p>
           <p
             style={{
-              maxWidth: "250px",
+              maxWidth: "220px",
               textAlign: "center",
               color: "white",
               marginTop: "5px",
@@ -247,7 +248,7 @@ export default function SendValentineFriendSelect({
               {friend.first_name} {friend.last_name}
             </div>
             <div className={getHeartIconClass(friend.id)}></div>
-            {selected.includes(friend.id) && !popupVisible && (
+            {selected.includes(friend.id) && !popupVisible && !recipientsData.find(recipient => recipient.userId === friend.id) &&  (
               <Button
                 className="select-button"
                 style={{

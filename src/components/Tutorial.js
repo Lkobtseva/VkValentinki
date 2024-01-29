@@ -62,7 +62,6 @@ const Tutorial = ({ id, tutorialStep, nextTutorialStep, go }) => {
           console.error("Failed to create user:", response.statusText);
           if (response.status === 400) {
             setUserCreated(true);
-            console.log(await response.json());
           }
         }
         setFetchCompleted(true);
@@ -74,7 +73,7 @@ const Tutorial = ({ id, tutorialStep, nextTutorialStep, go }) => {
 
     const fetchData = async () => {
       try {
-        console.log("Fetching user info...");
+
         await vkApi.init();
 
         const userInfo = await vkApi.getUserInfo();
