@@ -21,7 +21,7 @@ import vkApi from "./utils/Api";
 const App = () => {
   const [activeView, setActiveView] = useState("tutorial");
   const [tutorialStep, setTutorialStep] = useState(1);
-  const [user, setUser] = useState({});
+ // const [user, setUser] = useState({});
   const [userFriends, setUserFriends] = useState([]);
   const [friendId, setFriendId] = useState(null);
   const [ValentineId, setValentineId] = useState(null);
@@ -30,15 +30,14 @@ const App = () => {
   const [isAnonymous, setAnonymous] = useState(false);
 
   //инициализация приложения
-  useEffect(() => {
+ useEffect(() => {
     let isMounted = true;
 
     const initApp = async () => {
       try {
-        await vkApi.init();
-        const userInfo = await vkApi.getUserInfo();
+  
         if (isMounted) {
-          setUser(userInfo);
+          console.log('success')
         }
       } catch (error) {
         console.error(error);
@@ -74,10 +73,12 @@ const App = () => {
     setAnonymous(isAnon);
   };
 
-  //чтобы убедиться, что все корректно установилось
+  //чтобы убедиться, что все корректно установились все данные для валентинки
   useEffect(() => {
     sendValentineToBackend();
   }, [message, isAnonymous]);
+
+
 
   //отправка валентинки
   const sendValentineToBackend = async () => {
@@ -159,7 +160,7 @@ const App = () => {
               go={go}
             />
 
-            <MainScreen id="main" go={go} user={user} />
+            <MainScreen id="main" go={go} />
             <SendValentineFriendSelect
               id="friend"
               go={go}

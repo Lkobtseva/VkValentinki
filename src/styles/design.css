@@ -36,7 +36,7 @@
   }
   .design__input{
     height: 200px;
-    background-image: url('../images/baseVal.svg');
+    /*background-image: url('../images/baseVal.svg');*/
     background-repeat: no-repeat;
     background-size: cover;
     background-position: left;

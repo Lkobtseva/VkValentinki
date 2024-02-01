@@ -10,26 +10,27 @@ import {
 } from "@vkontakte/vkui";
 import "../styles/design.css";
 import Navigator from "./Navigator";
+import baseBackground from "../images/baseVal.svg";
 
 const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
   const [valentines, setValentines] = useState([]);
   const [backgrounds, setBackgrounds] = useState([]);
   const [selectedValentineId, setSelectedValentineId] = useState(() => {
-    const storedValentineId = localStorage.getItem('selectedValentineId');
+    const storedValentineId = localStorage.getItem("selectedValentineId");
     return storedValentineId ? JSON.parse(storedValentineId) : null;
   });
   const [selectedBackgroundId, setSelectedBackgroundId] = useState(() => {
-    const storedBackgroundId = localStorage.getItem('selectedBackgroundId');
+    const storedBackgroundId = localStorage.getItem("selectedBackgroundId");
     return storedBackgroundId ? JSON.parse(storedBackgroundId) : null;
   });
 
   const [selectedValentine, setSelectedValentine] = useState(() => {
-    const storedValentine = localStorage.getItem('selectedValentine');
+    const storedValentine = localStorage.getItem("selectedValentine");
     return storedValentine ? JSON.parse(storedValentine) : null;
   });
 
   const [selectedBackground, setSelectedBackground] = useState(() => {
-    const storedBackground = localStorage.getItem('selectedBackground');
+    const storedBackground = localStorage.getItem("selectedBackground");
     return storedBackground ? JSON.parse(storedBackground) : null;
   });
 
@@ -92,20 +93,25 @@ const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
 
   const handleSelectDesign = () => {
     onSelectDesign(selectedValentineId, selectedBackgroundId);
-    saveToLocalStorage('selectedValentineId', selectedValentineId);
-    saveToLocalStorage('selectedBackgroundId', selectedBackgroundId);
-    saveToLocalStorage('selectedValentine', selectedValentine);
-    saveToLocalStorage('selectedBackground', selectedBackground);
+    saveToLocalStorage("selectedValentineId", selectedValentineId);
+    saveToLocalStorage("selectedBackgroundId", selectedBackgroundId);
+    saveToLocalStorage("selectedValentine", selectedValentine);
+    saveToLocalStorage("selectedBackground", selectedBackground);
     onNext();
   };
 
   return (
     <Panel id="design">
       <PanelHeader>Выберите дизайн</PanelHeader>
-      <Div style={{ paddingLeft: "0", paddingRight: "0", }}>
+      <Div style={{ paddingLeft: "0", paddingRight: "0" }}>
         <Div
           className="design__page"
-          style={{ paddingLeft: "0", paddingRight: "0", maxHeight:'800px', overflowY: 'auto'  }}
+          style={{
+            paddingLeft: "0",
+            paddingRight: "0",
+            maxHeight: "800px",
+            overflowY: "auto",
+          }}
         >
           <Div>
             <Div
@@ -117,6 +123,10 @@ const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
                 alignItems: "center",
                 border: "2px solid rgb(193 192 192)",
                 borderRadius: "10px",
+                backgroundImage:
+                  selectedBackground || selectedValentine
+                    ? ""
+                    : `url(${baseBackground})`,
               }}
             >
               {selectedBackground && (
@@ -173,7 +183,7 @@ const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
                     }}
                   >
                     <Avatar
-                       className={`background__icon ${
+                      className={`background__icon ${
                         selectedBackgroundId === background.id ? "selected" : ""
                       }`}
                       size={55}
@@ -207,7 +217,7 @@ const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
                     style={{ marginRight: "20px", padding: 0 }}
                   >
                     <Avatar
-                       className={`background__icon ${
+                      className={`background__icon ${
                         selectedValentineId === valentine.id ? "selected" : ""
                       }`}
                       size={100}
@@ -224,14 +234,15 @@ const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
               </Gallery>
             </Div>
           </Div>
-          <Div style={{marginBottom:'100px'}}>
+          <Div style={{ marginBottom: "100px" }}>
             <Button
               style={{
-                color: "white",
+                color:
+                  selectedBackground && selectedValentine ? "white" : "black",
                 backgroundColor:
                   selectedBackground && selectedValentine
                     ? "#FF3347"
-                    : "#c1c0c0",
+                    : "rgb(223 223 223)",
                 maxWidth: "250px",
                 marginLeft: "auto",
                 marginRight: "auto",

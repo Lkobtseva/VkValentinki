@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import bridge from "@vkontakte/vk-bridge";
 import PropTypes from "prop-types";
 import {
   Panel,
@@ -13,11 +14,7 @@ import "../styles/main.css";
 import Navigator from "./Navigator";
 import vkApi from "../utils/Api";
 
-export default function SendValentineFriendSelect({
-  onNext,
-  onSelectFriend,
-  go,
-}) {
+const SendValentineFriendSelect = ({ onNext, onSelectFriend, go }) => {
   const [friends, setFriends] = useState([]);
   const [selected, setSelected] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -25,12 +22,49 @@ export default function SendValentineFriendSelect({
   const [sentValentines, setSentValentines] = useState([]);
   const [recipientsData, setRecipientsData] = useState([]);
   const [popupVisible, setPopupVisible] = useState(false);
+  const [accessGranted, setAccessGranted] = useState(false);
+  const [loading, setLoading] = useState(true);
 
+  // Функция для получения статуса токена при монтировании компонента
+  useEffect(() => {
+    const checkTokenStatus = async () => {
+      try {
+        // Получение ID отправителя
+        const userInfo = await bridge.send("VKWebAppGetUserInfo");
+        await getFriendsTokenStatus(userInfo.id);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error checking token status:", error);
+      }
+    };
+    checkTokenStatus();
+  }, []);
+
+  //выбор друга и переход к кастому валентинки
   const handleSelectFriend = () => {
     onSelectFriend(selectedFriendId);
     onNext();
   };
 
+  // Функция для предоставления доступа к списку друзей
+  const grantAccess = async () => {
+    try {
+      const permissionGranted = await vkApi.requestFriendsPermission();
+      if (permissionGranted) {
+        console.log("Access granted");
+        setAccessGranted(true);
+        await setFriendsToken(true);
+      } else {
+        console.log("Access denied");
+        setAccessGranted(false);
+      }
+    } catch (error) {
+      console.error("Error granting access to friends list:", error);
+      //setAccessGranted(false);
+    }
+  };
+
+  //Функция рендера блока с друзьями
   useEffect(() => {
     async function loadFriends() {
       try {
@@ -49,11 +83,125 @@ export default function SendValentineFriendSelect({
       }
     }
 
-    loadFriends();
-  }, [[setSelectedFriendId]]);
+    if (accessGranted) {
+      loadFriends();
+    }
+  }, [accessGranted]);
 
+  //установка статуса токена, разрешающего доступ к друзьям
+  const setFriendsToken = async (status) => {
+    //получение необходимых данных для запросов
+    const configString = window.location.href;
+    const url = new URL(configString);
+    const params = url.searchParams;
+    const signature = params.get("sign");
+
+    //получаем AuthString
+    function getAuthString() {
+      const VK_PREFIX = "vk_";
+      const url = new URL(window.location.href);
+      const params = url.searchParams;
+
+      return params
+        .toString()
+        .split("&")
+        .filter((p) => p.startsWith(VK_PREFIX))
+        .sort()
+        .join("&");
+    }
+    const authString = getAuthString();
+
+    // Получение ID отправителя
+    const userInfo = await bridge.send("VKWebAppGetUserInfo");
+    const userSenderVkId = userInfo?.id.toString();
+    try {
+      const response = await fetch(
+        "https://valentine.itc-hub.ru/api/v1/setfriendtoken",
+        {
+          method: "POST",
+          headers: {
+            Authorization: authString,
+            Sign: signature,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            vk_id: userSenderVkId,
+            friend_token: status ? "1" : "0",
+          }),
+        }
+      );
+
+      const data = await response.json();
+      if (data.status === "save") {
+        console.log("Friends tooken status saved successfully.");
+        setAccessGranted(true);
+      } else {
+        console.error("Failed to save friends token status.");
+        setAccessGranted(false);
+      }
+    } catch (error) {
+      console.error("Error setting friends token:", error);
+    }
+  };
+
+  //берем статус токена с бэка
+  const getFriendsTokenStatus = async () => {
+    //получение необходимых данных для запросов
+    const configString = window.location.href;
+    const url = new URL(configString);
+    const params = url.searchParams;
+    const signature = params.get("sign");
+
+    //получаем AuthString
+    function getAuthString() {
+      const VK_PREFIX = "vk_";
+      const url = new URL(window.location.href);
+      const params = url.searchParams;
+
+      return params
+        .toString()
+        .split("&")
+        .filter((p) => p.startsWith(VK_PREFIX))
+        .sort()
+        .join("&");
+    }
+    const authString = getAuthString();
+
+    // Получение ID отправителя
+    const userInfo = await bridge.send("VKWebAppGetUserInfo");
+    const userSenderVkId = userInfo?.id.toString();
+    try {
+      const response = await fetch(
+        "https://valentine.itc-hub.ru/api/v1/getfriendtoken",
+        {
+          method: "POST",
+          headers: {
+            Authorization: authString,
+            Sign: signature,
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            vk_id: userSenderVkId,
+          }),
+        }
+      );
+
+      const data = await response.json();
+      if (data.friend_token === false) {
+        setAccessGranted(false);
+      } else {
+        setAccessGranted(true);
+      }
+    } catch (error) {
+      console.error("Error getting friends token status:", error);
+    }
+  };
+
+  //(отправленная валентинка) для того чтобы проверить кому из друзей уже была отправлена валентинка
   useEffect(() => {
     const getSentValentines = async () => {
+      //получение необходимых данных для запросов
       const configString = window.location.href;
       const url = new URL(configString);
       const params = url.searchParams;
@@ -76,8 +224,7 @@ export default function SendValentineFriendSelect({
 
       // Получение ID отправителя
       const userInfo = await vkApi.getUserInfo();
-      const userSenderVkId = userInfo.id.toString();
-
+      const userSenderVkId = userInfo?.id.toString();
       try {
         const response = await fetch(
           "https://valentine.itc-hub.ru/api/v1/getvalentinesend",
@@ -131,6 +278,7 @@ export default function SendValentineFriendSelect({
     getSentValentines();
   }, []);
 
+  //выбор друга
   function toggleSelect(friendId) {
     if (selected.includes(friendId)) {
       setSelected([]);
@@ -145,12 +293,23 @@ export default function SendValentineFriendSelect({
         (recipient) => recipient.userId === friendId
       );
       if (selectedFriend) {
-        setPopupVisible(true); // Установка видимости попапа
+        setPopupVisible(true);
       }
     }
   }
 
-  // Функция для закрытия попапа
+  // Фильтрация друзей по поисковому запросу
+  const filteredFriends = friends.filter((friend) => {
+    const fullName = `${friend.first_name} ${friend.last_name}`.toLowerCase();
+    const trimmedSearchTerm = searchTerm.trim().toLowerCase();
+
+    return fullName.includes(trimmedSearchTerm);
+  });
+  // выбор друга сердечком
+  const getHeartIconClass = (friendId) => {
+    return selected.includes(friendId) ? "heart-icon_selected" : "";
+  };
+
   const closePopup = () => {
     setPopupVisible(false);
   };
@@ -172,104 +331,134 @@ export default function SendValentineFriendSelect({
     };
   }, [popupVisible]);
 
-  // Фильтрация друзей по поисковому запросу
-  const filteredFriends = friends.filter((friend) => {
-    const fullName = `${friend.first_name} ${friend.last_name}`.toLowerCase();
-    const trimmedSearchTerm = searchTerm.trim().toLowerCase();
-
-    return fullName.includes(trimmedSearchTerm);
-  });
-  // выбор друга сердечком
-  const getHeartIconClass = (friendId) => {
-    return selected.includes(friendId) ? "heart-icon_selected" : "";
-  };
-
   return (
     <Panel id="friend" className="container">
       <PanelHeader className="header">Выберите друга</PanelHeader>
-      <div className="search-bar">
-        <Input
-          type="text"
-          placeholder="Поиск друзей"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
-      {popupVisible && (
-        <Div id="popup" className="popupContainer">
-          <Div className="popup__button" onClick={closePopup} />
+      {/* Блок запроса доступа */}
+      {!accessGranted && !loading && (
+        <Div
+          style={{
+            marginTop: "60px",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
           <p
             style={{
-              maxWidth: "220px",
-              textAlign: "center",
-              color: "white",
-              marginTop: "5px",
-              fontSize: "16px",
-              marginBottom:'10px'
+              maxWidth: "325px",
+              marginLeft: "auto",
+              marginRight: "auto",
+              textalign: "center",
             }}
           >
-            Вы уже отправили валентинку этому другу.
+            Нужен доступ к списку ваших друзей.
           </p>
-          <p
+          <Button
+            className="access__button"
             style={{
-              maxWidth: "220px",
-              textAlign: "center",
-              color: "white",
-              marginTop: "5px",
-              fontSize: "16px",
+              maxWidth: "200px",
+              marginLeft: "auto",
+              marginRight: "auto",
+              backgroundColor: "#ff3347",
             }}
+            onClick={grantAccess}
           >
-            Отправить можно только один раз.
-          </p>
+            Предоставить доступ
+          </Button>
         </Div>
       )}
-      <Group
-        className="group-container"
-        style={{
-          maxHeight: "1500px",
-          overflowY: "auto",
-          padding: "15px",
-          paddingTop: "0px",
-          paddingBottom: "100px",
-        }}
-      >
-        {filteredFriends.map((friend) => (
-          <Div
-            key={friend.id}
-            className="friend-card"
-            onClick={() => toggleSelect(friend.id)}
-          >
-            <Avatar
-              className="friend-avatar"
-              src={friend.photo_100}
-              alt={`${friend.first_name} ${friend.last_name}`}
+      {accessGranted && (
+        <div>
+          <div className="search-bar">
+            <Input
+              type="text"
+              placeholder="Поиск друзей"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <div className="friend-name">
-              {friend.first_name} {friend.last_name}
-            </div>
-            <div className={getHeartIconClass(friend.id)}></div>
-            {selected.includes(friend.id) && !popupVisible && !recipientsData.find(recipient => recipient.userId === friend.id) &&  (
-              <Button
-                className="select-button"
+          </div>
+          {popupVisible && (
+            <Div id="popup" className="popupContainer">
+              <Div className="popup__button" onClick={closePopup} />
+              <p
                 style={{
+                  maxWidth: "220px",
+                  textAlign: "center",
                   color: "white",
-                  backgroundColor: "#FF3347",
+                  marginTop: "5px",
+                  fontSize: "16px",
+                  marginBottom: "10px",
                 }}
-                onClick={handleSelectFriend}
               >
-                Выбрать
-              </Button>
-            )}
-          </Div>
-        ))}
-      </Group>
+                Вы уже отправили валентинку этому другу.
+              </p>
+              <p
+                style={{
+                  maxWidth: "220px",
+                  textAlign: "center",
+                  color: "white",
+                  marginTop: "5px",
+                  fontSize: "16px",
+                }}
+              >
+                Отправить можно только один раз.
+              </p>
+            </Div>
+          )}
+          <Group
+            className="group-container"
+            style={{
+              maxHeight: "1500px",
+              overflowY: "auto",
+              padding: "15px",
+              paddingTop: "0px",
+              paddingBottom: "100px",
+            }}
+          >
+            {filteredFriends.map((friend) => (
+              <Div
+                key={friend.id}
+                className="friend-card"
+                onClick={() => toggleSelect(friend.id)}
+              >
+                <Avatar
+                  className="friend-avatar"
+                  src={friend.photo_100}
+                  alt={`${friend.first_name} ${friend.last_name}`}
+                />
+                <div className="friend-name">
+                  {friend.first_name} {friend.last_name}
+                </div>
+                <div className={getHeartIconClass(friend.id)}></div>
+                {selected.includes(friend.id) &&
+                  !popupVisible &&
+                  !recipientsData.find(
+                    (recipient) => recipient.userId === friend.id
+                  ) && (
+                    <Button
+                      className="select-button"
+                      style={{
+                        color: "white",
+                        backgroundColor: "#FF3347",
+                      }}
+                      onClick={handleSelectFriend}
+                    >
+                      Выбрать
+                    </Button>
+                  )}
+              </Div>
+            ))}
+          </Group>
+        </div>
+      )}
       <Navigator go={go} />
     </Panel>
   );
-}
+};
 
 SendValentineFriendSelect.propTypes = {
   onNext: PropTypes.func,
   go: PropTypes.func,
   onSelectFriend: PropTypes.func,
 };
+export default SendValentineFriendSelect;

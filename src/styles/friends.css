@@ -109,3 +109,6 @@ margin-left: 90%;
 .popup__button:active {
   filter: brightness(0.8); 
 }
+.access__button:active {
+  filter: brightness(0.8); 
+}

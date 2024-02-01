@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import bridge from "@vkontakte/vk-bridge";
 import {
   Panel,
   PanelHeader,
@@ -8,9 +9,6 @@ import {
   Progress,
 } from "@vkontakte/vkui";
 import "../styles/Tutorial.css";
-import Auth from "../utils/Auth";
-import vkApi from "../utils/Api";
-
 
 const Tutorial = ({ id, tutorialStep, nextTutorialStep, go }) => {
   const [userCreated, setUserCreated] = useState(false);
@@ -65,7 +63,6 @@ const Tutorial = ({ id, tutorialStep, nextTutorialStep, go }) => {
           }
         }
         setFetchCompleted(true);
-
       } catch (error) {
         console.error("Error creating user:", error.message);
       }
@@ -73,10 +70,10 @@ const Tutorial = ({ id, tutorialStep, nextTutorialStep, go }) => {
 
     const fetchData = async () => {
       try {
+        // await vkApi.init();
 
-        await vkApi.init();
+        const userInfo = await bridge.send("VKWebAppGetUserInfo");
 
-        const userInfo = await vkApi.getUserInfo();
         const secretKey =
           process.env.REACT_APP_SECRET_KEY || "defaultSecretKey";
         // Отправка запроса на бэкенд для создания пользователя
