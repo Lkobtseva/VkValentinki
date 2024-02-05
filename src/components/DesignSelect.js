@@ -123,6 +123,7 @@ const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
                 alignItems: "center",
                 border: "2px solid rgb(193 192 192)",
                 borderRadius: "10px",
+                backgroundSize: "contain",
                 backgroundImage:
                   selectedBackground || selectedValentine
                     ? ""
@@ -148,8 +149,8 @@ const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
                   src={selectedValentine.image}
                   style={{
                     position: "absolute",
-                    width: "50%",
-                    height: "50%",
+                    width: "80%",
+                    height: "80%",
                     borderRadius: "10px",
                     objectFit: "cover",
                   }}

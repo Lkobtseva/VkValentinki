@@ -80,6 +80,8 @@ const App = () => {
 
 
 
+  //console.log(vkApi.getUserInfo());
+
   //отправка валентинки
   const sendValentineToBackend = async () => {
     const configString = window.location.href;

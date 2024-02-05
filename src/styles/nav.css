@@ -42,3 +42,9 @@ padding-top: 0;
 padding-bottom: 0;
 
 }
+.vkuiTabbar__in {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    overflow: hidden;
+}

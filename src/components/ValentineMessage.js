@@ -86,13 +86,15 @@ const SendValentineMessage = ({ go, onSelectMessage, onNext }) => {
           <Button
             style={{
               color: "white",
-              backgroundColor: "#FF3347",
+              color: text.trim() ? "white" : "black",
+              backgroundColor: text.trim() ? "#FF3347" : "#f2f3f5",
             }}
             size="l"
             stretched
             onClick={handleSelectMessage}
             data-to="main"
             go={go}
+            disabled={!text.trim()} 
           >
             Отправить
           </Button>

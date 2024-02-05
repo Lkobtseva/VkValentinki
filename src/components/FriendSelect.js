@@ -9,6 +9,7 @@ import {
   Group,
   Input,
   Avatar,
+  Snackbar,
 } from "@vkontakte/vkui";
 import "../styles/main.css";
 import Navigator from "./Navigator";
@@ -24,22 +25,7 @@ const SendValentineFriendSelect = ({ onNext, onSelectFriend, go }) => {
   const [popupVisible, setPopupVisible] = useState(false);
   const [accessGranted, setAccessGranted] = useState(false);
   const [loading, setLoading] = useState(true);
-
-  // Функция для получения статуса токена при монтировании компонента
-  useEffect(() => {
-    const checkTokenStatus = async () => {
-      try {
-        // Получение ID отправителя
-        const userInfo = await bridge.send("VKWebAppGetUserInfo");
-        await getFriendsTokenStatus(userInfo.id);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error checking token status:", error);
-      }
-    };
-    checkTokenStatus();
-  }, []);
-
+  const [friendsDataLoaded, setFriendsDataLoaded] = useState(true);
   //выбор друга и переход к кастому валентинки
   const handleSelectFriend = () => {
     onSelectFriend(selectedFriendId);
@@ -60,11 +46,10 @@ const SendValentineFriendSelect = ({ onNext, onSelectFriend, go }) => {
       }
     } catch (error) {
       console.error("Error granting access to friends list:", error);
-      //setAccessGranted(false);
     }
   };
 
-  //Функция рендера блока с друзьями
+  // Функция рендера блока с друзьями
   useEffect(() => {
     async function loadFriends() {
       try {
@@ -80,6 +65,8 @@ const SendValentineFriendSelect = ({ onNext, onSelectFriend, go }) => {
         }
       } catch (error) {
         console.error("Error loading friends:", error);
+      } finally {
+        setLoading(false); // Установка loading в false после загрузки друзей
       }
     }
 
@@ -197,6 +184,21 @@ const SendValentineFriendSelect = ({ onNext, onSelectFriend, go }) => {
       console.error("Error getting friends token status:", error);
     }
   };
+
+  // Функция для получения статуса токена при монтировании компонента
+  useEffect(() => {
+    const checkTokenStatus = async () => {
+      try {
+        // Получение ID отправителя
+        const userInfo = await bridge.send("VKWebAppGetUserInfo");
+        await getFriendsTokenStatus(userInfo.id);
+        setFriendsDataLoaded(false);
+      } catch (error) {
+        console.error("Error checking token status:", error);
+      }
+    };
+    checkTokenStatus();
+  }, []);
 
   //(отправленная валентинка) для того чтобы проверить кому из друзей уже была отправлена валентинка
   useEffect(() => {
@@ -335,7 +337,7 @@ const SendValentineFriendSelect = ({ onNext, onSelectFriend, go }) => {
     <Panel id="friend" className="container">
       <PanelHeader className="header">Выберите друга</PanelHeader>
       {/* Блок запроса доступа */}
-      {!accessGranted && !loading && (
+      {!accessGranted && !friendsDataLoaded && (
         <Div
           style={{
             marginTop: "60px",
@@ -348,10 +350,24 @@ const SendValentineFriendSelect = ({ onNext, onSelectFriend, go }) => {
               maxWidth: "325px",
               marginLeft: "auto",
               marginRight: "auto",
-              textalign: "center",
+              fontSize: "18px",
+              marginBottom: "0",
+              fontWeight: "bold",
+              color: "#ff3347",
             }}
           >
-            Нужен доступ к списку ваших друзей.
+            Раздел недоступен
+          </p>
+          <p
+            style={{
+              maxWidth: "325px",
+              marginLeft: "auto",
+              marginRight: "auto",
+              textAlign: "center",
+              marginTop: "10px",
+            }}
+          >
+            Для этого раздела нужен доступ к списку Ваших друзей
           </p>
           <Button
             className="access__button"
@@ -367,7 +383,13 @@ const SendValentineFriendSelect = ({ onNext, onSelectFriend, go }) => {
           </Button>
         </Div>
       )}
-      {accessGranted && (
+
+      {loading && accessGranted && (
+        <div className="loader-container">
+          <div className="loader"></div>
+        </div>
+      )}
+      {accessGranted && !loading && (
         <div>
           <div className="search-bar">
             <Input
@@ -378,32 +400,31 @@ const SendValentineFriendSelect = ({ onNext, onSelectFriend, go }) => {
             />
           </div>
           {popupVisible && (
-            <Div id="popup" className="popupContainer">
-              <Div className="popup__button" onClick={closePopup} />
+            <Snackbar id="popup" className="popupContainer">
               <p
                 style={{
-                  maxWidth: "220px",
+                  //maxWidth: "220px",
                   textAlign: "center",
-                  color: "white",
-                  marginTop: "5px",
+                  //color: "white",
+                  //marginTop: "5px",
                   fontSize: "16px",
-                  marginBottom: "10px",
+                  //marginBottom: "10px",
                 }}
               >
                 Вы уже отправили валентинку этому другу.
               </p>
               <p
                 style={{
-                  maxWidth: "220px",
+                  // maxWidth: "220px",
                   textAlign: "center",
-                  color: "white",
-                  marginTop: "5px",
+                  //color: "white",
+                  //marginTop: "5px",
                   fontSize: "16px",
                 }}
               >
                 Отправить можно только один раз.
               </p>
-            </Div>
+            </Snackbar>
           )}
           <Group
             className="group-container"

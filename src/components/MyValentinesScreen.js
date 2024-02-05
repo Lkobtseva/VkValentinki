@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { Panel, PanelHeader, Avatar, Button, Div } from "@vkontakte/vkui";
+import {
+  Panel,
+  PanelHeader,
+  Avatar,
+  Button,
+  Div,
+  FixedLayout,
+} from "@vkontakte/vkui";
 import Navigator from "./Navigator";
 import "../styles/main.css";
 import vkApi from "../utils/Api";
@@ -14,6 +21,7 @@ const MyValentinesScreen = ({ id, go }) => {
   const [sendersData, setSendersData] = useState([]);
   const [selectedValentine, setSelectedValentine] = useState(null);
   const [popupOpen, setPopupOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const getSentValentines = async () => {
@@ -40,7 +48,7 @@ const MyValentinesScreen = ({ id, go }) => {
       // Получение ID отправителя
       const userInfo = await vkApi.getUserInfo();
       const userSenderVkId = userInfo.id.toString();
-
+      setLoading(true);
       try {
         const response = await fetch(
           "https://valentine.itc-hub.ru/api/v1/getvalentinereceived",
@@ -65,7 +73,7 @@ const MyValentinesScreen = ({ id, go }) => {
         // Обработка анонимных валентинок
         const formattedValentines = valentines.map((item) => ({
           id: item.id,
-          senderId: null, 
+          senderId: null,
           text: item.text,
           isAnonymous: true,
           backgroundId: item.background_id,
@@ -107,6 +115,7 @@ const MyValentinesScreen = ({ id, go }) => {
         } else {
           console.error("Error getting user info or empty response");
         }
+        setLoading(false);
         setReceivedValentines([
           ...formattedValentines,
           ...notAnonimValentinesWithSenderInfo,
@@ -341,13 +350,27 @@ const MyValentinesScreen = ({ id, go }) => {
 
   return (
     <Panel id={"myValentines"}>
-      <PanelHeader>Полученные</PanelHeader>
-      <Div style={{ paddingTop: "15px" }}>
-      {receivedValentines.length === 0 ? (
-        <p style={{ textAlign: "center", color: '#6d7885' }}>Пока что у вас нет полученных валентинок</p>
-      ) : (
-        renderReceivedValentines()
-      )}
+      <FixedLayout filled vertical="top">
+        <PanelHeader>Полученные</PanelHeader>
+      </FixedLayout>
+
+      <Div style={{ paddingTop: "70px", paddingBottom: "100px" }}>
+        {loading ? (
+          <div className="loader-container">
+            <div className="loader"></div>
+          </div>
+        ) : (
+          <>
+            {receivedValentines.length > 0 ? (
+              renderReceivedValentines()
+            ) : (
+              <p style={{ textAlign: "center", color: "#6d7885" }}>
+                Пока что у вас нет полученных валентинок
+              </p>
+            )}
+          </>
+        )}
+
         {popupOpen && (
           <Div
             id="popup"
@@ -462,8 +485,4 @@ const MyValentinesScreen = ({ id, go }) => {
   );
 };
 
-MyValentinesScreen.propTypes = {
-  id: PropTypes.string.isRequired,
-  go: PropTypes.func.isRequired,
-};
 export default MyValentinesScreen;

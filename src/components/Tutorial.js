@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import bridge from "@vkontakte/vk-bridge";
+import PropTypes from "prop-types";
 import {
   Panel,
   PanelHeader,
@@ -13,6 +14,38 @@ import "../styles/Tutorial.css";
 const Tutorial = ({ id, tutorialStep, nextTutorialStep, go }) => {
   const [userCreated, setUserCreated] = useState(false);
   const [fetchCompleted, setFetchCompleted] = useState(false);
+
+  const showSlides = async () => {
+    try {
+      const slides = [
+        {
+          title: 'Добро пожаловать в приложение "Валентинки"!',
+          subtitle:
+            "Создайте уникальные валентинки и отправляйте их своим друзьям.",
+        },
+        {
+          title: "Что умеет приложение?",
+          subtitle:
+            "Приложение позволяет вам самостоятельно создавать валентинки, выбирать получателя и отправлять их анонимно или не анонимно.",
+        },
+        {
+          title: "Начнем работу?",
+          subtitle:
+            "Пока не знаю что тут писать.",
+        },
+      ];
+
+      const { result } = await bridge.send("VKWebAppShowSlidesSheet", {
+        slides,
+      });
+
+      if (result) {
+        console.log("Slides are shown");
+      }
+    } catch (error) {
+      console.error("Error showing slides:", error);
+    }
+  };
 
   useEffect(() => {
     //получаем sign
@@ -70,14 +103,14 @@ const Tutorial = ({ id, tutorialStep, nextTutorialStep, go }) => {
 
     const fetchData = async () => {
       try {
-        // await vkApi.init();
-
         const userInfo = await bridge.send("VKWebAppGetUserInfo");
-
         const secretKey =
           process.env.REACT_APP_SECRET_KEY || "defaultSecretKey";
         // Отправка запроса на бэкенд для создания пользователя
         sendRequestToBackend(signature, userInfo.id, secretKey);
+        if (userCreated) {
+          showSlides();
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -90,102 +123,16 @@ const Tutorial = ({ id, tutorialStep, nextTutorialStep, go }) => {
     return null;
   }
 
-  const renderTutorialContent = () => {
-    if (!userCreated) {
-      switch (tutorialStep) {
-        case 1:
-          return (
-            <Div>
-              <h2>Добро пожаловать в приложение "Валентинки"!</h2>
-              <p>
-                Создайте уникальные валентинки и отправляйте их своим друзьям.
-              </p>
-            </Div>
-          );
-        case 2:
-          return (
-            <Div>
-              <h2>Что умеет приложение?</h2>
-              <p>
-                Приложение позволяет вам самостоятельно создавать валентинки,
-                выбирать получателя и отправлять их анонимно или не анонимно.
-              </p>
-            </Div>
-          );
-        case 3:
-          return (
-            <Div
-              style={{
-                maxWidth: "200px",
-                marginRight: "auto",
-                marginLeft: "auto",
-              }}
-            >
-              <h2 style={{ paddingLeft: "5px" }}>Начнем работу!</h2>
-              <Button
-                className="tutorial__button"
-                style={{
-                  color: "white",
-                  backgroundColor: "#FF3347",
-                }}
-                size="l"
-                onClick={() => go("main")}
-                data-to="main"
-              >
-                Создать валентинку
-              </Button>
-            </Div>
-          );
-        default:
-          return null;
-      }
-    } else {
-      return (
-        <Div
-          style={{ maxWidth: "200px", marginRight: "auto", marginLeft: "auto" }}
-        >
-          <Div className="hello__icon"></Div>
-          <Button
-            className="tutorial__button"
-            style={{
-              color: "white",
-              backgroundColor: "#FF3347",
-            }}
-            size="l"
-            onClick={() => go("main")}
-            data-to="main"
-          >
-            Создать валентинку
-          </Button>
-        </Div>
-      );
-    }
-  };
+  go("main");
 
   return (
-    <Panel id={"tutorial"}>
+    <Panel id={id}>
       <PanelHeader>Valentinki</PanelHeader>
-      <Group className="tutorial__block">
-        {renderTutorialContent()}
-        {!userCreated && <Progress value={tutorialStep * 30} max={90} />}
-        {!userCreated && tutorialStep < 3 && (
-          <Div>
-            <Button
-              className="tutorial__button"
-              style={{
-                color: "white",
-                backgroundColor: "#FF3347",
-              }}
-              size="l"
-              onClick={nextTutorialStep}
-            >
-              Далее
-            </Button>
-          </Div>
-        )}
-      </Group>
+      <Group className="tutorial__block"></Group>
     </Panel>
   );
 };
-
+Tutorial.propTypes = {
+  go: PropTypes.func,
+};
 export default Tutorial;

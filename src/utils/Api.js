@@ -119,22 +119,22 @@ class VkApi {
       });
 
       const userInfo = response.response;
-      if (userInfo && userInfo.length > 0) {
+     /* if (userInfo && userInfo.length > 0) {
         userInfo.forEach((user) => {
           const firstName = user.first_name;
           const lastName = user.last_name;
 
-          /*if (firstName && lastName) {
+          if (firstName && lastName) {
             console.log(`Пользователь: ${firstName} ${lastName}`);
           } else {
             console.error("Отсутствуют данные о пользователе или не хватает свойств");
-          }*/
-        });
+          }
+        });*/
         return userInfo;
-      } else {
+      /*} else {
         console.error("User info not found");
         return null;
-      }
+      }*/
     } catch (error) {
       console.error("Error getting user info:", error);
       return null;

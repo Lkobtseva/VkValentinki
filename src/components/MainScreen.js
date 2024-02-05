@@ -22,9 +22,10 @@ const MainScreen = ({ go }) => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [user, setUser] = useState({});
   const [profileAccessGranted, setProfileAccessGranted] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [userLoading, setUserLoading] = useState(true);
-
+  const [loader, setLoader] = useState(true);
+  const [profileDataLoaded, setProfileDataLoaded] = useState(true);
   // Функция для получения статуса токена при монтировании компонента
   useEffect(() => {
     const checkTokenStatus = async () => {
@@ -33,7 +34,7 @@ const MainScreen = ({ go }) => {
         const userInfo = await bridge.send("VKWebAppGetUserInfo");
         await getDefaultTokenStatus(userInfo.id);
         getNotificationStatus();
-        setLoading(false);
+        setProfileDataLoaded(false);
       } catch (error) {
         console.error("Error checking token status:", error);
       }
@@ -65,8 +66,12 @@ const MainScreen = ({ go }) => {
         const userInfo = await vkApi.getUserInfo();
         setUser(userInfo);
         setUserLoading(false);
+        setLoader(false);
+        setProfileDataLoaded(true);
       } catch (error) {
         console.error("Error loading userInfo:", error);
+      } finally {
+        setLoading(false);
       }
     }
 
@@ -314,11 +319,14 @@ const MainScreen = ({ go }) => {
   }
 
   return (
-    <Panel id="main">
+    <Panel
+      id="main"
+      style={{ display: "flex", justifyContent: "space-between", gap: "10px" }}
+    >
       <PanelHeader>Valentinki</PanelHeader>
 
       {/* Блок запроса доступа к профилю */}
-      {!profileAccessGranted && !loading && (
+      {!profileAccessGranted && !profileDataLoaded && (
         <Div
           style={{
             marginTop: "60px",
@@ -331,9 +339,11 @@ const MainScreen = ({ go }) => {
               maxWidth: "325px",
               marginLeft: "auto",
               marginRight: "auto",
+              textAlign: "center",
+              fontSize: "16px",
             }}
           >
-            Нам нужен доступ к вашему профилю.
+            Для этого раздела нужен доступ к Вашему профилю
           </p>
           <Button
             className="access__button"
@@ -349,18 +359,23 @@ const MainScreen = ({ go }) => {
           </Button>
         </Div>
       )}
-
+      {/* Показывать лоадер, если данные еще не загружены */}
+      {loader && profileAccessGranted && (
+        <div className="loader-container">
+          <div className="loader"></div>
+        </div>
+      )}
       {/* Блок профиля, уведомлений и навигационных кнопок */}
       {profileAccessGranted && !userLoading && (
         <>
           {/* Блок профиля */}
-          <Group>
+          <Div style={{}}>
             <Div
               style={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                paddingBottom: "0",
+                padding: "0",
               }}
             >
               <Div style={{ display: "flex", alignItems: "center" }}>
@@ -376,9 +391,8 @@ const MainScreen = ({ go }) => {
                 </Div>
               </Div>
             </Div>
-            <Separator style={{ display: "none" }} />
-          </Group>
-
+          </Div>
+          <Separator />
           {/* Блок уведомлений */}
           <Group>
             <Div
@@ -386,13 +400,29 @@ const MainScreen = ({ go }) => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                height: "175px",
+                //height: '135px',
+                paddingTop: "0",
+                paddingBottom: "0px",
+                paddingRight: "32px",
               }}
             >
               <Div style={{ display: "flex", flexDirection: "column" }}>
-                <Header style={{ paddingLeft: "0" }}>Уведомления</Header>
+                <p
+                  style={{
+                    paddingLeft: "0",
+                    marginTop: "10px",
+                    marginBottom: "10px",
+                  }}
+                >
+                  Уведомления
+                </p>
                 <span
-                  style={{ color: "grey", paddingLeft: "0", fontSize: "14px" }}
+                  style={{
+                    color: "grey",
+                    paddingLeft: "0",
+                    fontSize: "14px",
+                    marginBottom: "10px",
+                  }}
                 >
                   О приходе новой валентинки
                 </span>
@@ -403,7 +433,7 @@ const MainScreen = ({ go }) => {
               />
             </Div>
           </Group>
-
+          <Separator />
           {/* Навигационные кнопки */}
           <Div style={{ padding: 0 }}>
             <Group
@@ -411,6 +441,7 @@ const MainScreen = ({ go }) => {
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
+                paddingTop: "12px",
               }}
             >
               {/* Отправленные валентинки */}
@@ -421,11 +452,12 @@ const MainScreen = ({ go }) => {
                   display: "flex",
                   paddingLeft: "30px",
                   justifyContent: "flex-start",
+                  maxHeight: "40px",
                 }}
                 size="l"
                 onClick={() => go("SentValentines", "sent")}
               >
-                <Div style={{ paddingLeft: "0px" }}>
+                <Div style={{ paddingLeft: "0px", paddingTop: "6px" }}>
                   <img
                     style={{
                       maxHeight: "25px",
@@ -448,11 +480,18 @@ const MainScreen = ({ go }) => {
                   display: "flex",
                   paddingLeft: "32px",
                   justifyContent: "flex-start",
+                  maxHeight: "40px",
                 }}
                 size="l"
                 onClick={() => go("myValentines", "received")}
               >
-                <Div style={{ paddingLeft: "0px", marginLeft: "-1px" }}>
+                <Div
+                  style={{
+                    paddingLeft: "0px",
+                    marginLeft: "-1px",
+                    paddingTop: "6px",
+                  }}
+                >
                   <img
                     style={{
                       maxHeight: "23px",
@@ -466,7 +505,7 @@ const MainScreen = ({ go }) => {
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    paddingLeft: "3px",
+                    paddingLeft: "2px",
                   }}
                 >
                   Полученные валентинки

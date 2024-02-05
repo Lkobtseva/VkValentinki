@@ -12,6 +12,7 @@ const SentValentinesScreen = ({ id, go }) => {
   const [selectedValentine, setSelectedValentine] = useState(null);
   const [backgrounds, setBackgrounds] = useState([]);
   const [valentines, setValentines] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const getSentValentines = async () => {
@@ -38,7 +39,7 @@ const SentValentinesScreen = ({ id, go }) => {
       // Получение ID отправителя
       const userInfo = await vkApi.getUserInfo();
       const userSenderVkId = userInfo.id.toString();
-
+      setLoading(true);
       try {
         const response = await fetch(
           "https://valentine.itc-hub.ru/api/v1/getvalentinesend",
@@ -82,7 +83,7 @@ const SentValentinesScreen = ({ id, go }) => {
         } else {
           console.error("Error getting user info or empty response");
         }
-
+        setLoading(false);
         setSentValentines(valentine);
       } catch (error) {
         console.error(error);
@@ -218,12 +219,24 @@ const SentValentinesScreen = ({ id, go }) => {
       <FixedLayout filled vertical="top">
         <PanelHeader>Отправленные</PanelHeader>
       </FixedLayout>
+
       <Div style={{ paddingTop: "70px", paddingBottom: "100px" }}>
-      {sentValentines.length === 0 ? (
-        <p style={{ textAlign: "center", color: '#6d7885' }}>Пока что вы не отправили ни одной валентинки</p>
-      ) : (
-        renderSentValentines()
-      )}
+        {/* Показывать лоадер, если данные еще не загружены */}
+        {loading ? (
+          <div className="loader-container">
+            <div className="loader"></div>
+          </div>
+        ) : (
+          <>
+            {sentValentines.length > 0 ? (
+              renderSentValentines()
+            ) : (
+              <p style={{ textAlign: "center", color: "#6d7885" }}>
+                Пока что вы не отправили ни одной валентинки
+              </p>
+            )}
+          </>
+        )}
         {popupOpen && (
           <Div
             id="popup"
