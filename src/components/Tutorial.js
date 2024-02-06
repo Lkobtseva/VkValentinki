@@ -19,19 +19,31 @@ const Tutorial = ({ id, tutorialStep, nextTutorialStep, go }) => {
     try {
       const slides = [
         {
+          media: {
+            type: "image",
+            blob: "data:image/png;base64,[IMAGE_DATA]",
+          },
           title: 'Добро пожаловать в приложение "Валентинки"!',
           subtitle:
             "Создайте уникальные валентинки и отправляйте их своим друзьям.",
         },
         {
+          media: {
+            type: "image",
+            blob: "data:image/png;base64,[IMAGE_DATA]",
+          },
           title: "Что умеет приложение?",
           subtitle:
             "Приложение позволяет вам самостоятельно создавать валентинки, выбирать получателя и отправлять их анонимно или не анонимно.",
         },
         {
+          media: {
+            type: "image",
+            blob: "data:image/png;base64,[IMAGE_DATA]",
+          },
           title: "Начнем работу?",
           subtitle:
-            "Пока не знаю что тут писать.",
+            "Приложение позволяет вам самостоятельно создавать валентинки, выбирать получателя и отправлять их анонимно или не анонимно.",
         },
       ];
 
@@ -88,11 +100,11 @@ const Tutorial = ({ id, tutorialStep, nextTutorialStep, go }) => {
 
         if (response.ok) {
           console.log("User created successfully!");
-          setUserCreated(false);
+          setUserCreated(true);
         } else {
           console.error("Failed to create user:", response.statusText);
           if (response.status === 400) {
-            setUserCreated(true);
+            setUserCreated(false);
           }
         }
         setFetchCompleted(true);
@@ -108,9 +120,6 @@ const Tutorial = ({ id, tutorialStep, nextTutorialStep, go }) => {
           process.env.REACT_APP_SECRET_KEY || "defaultSecretKey";
         // Отправка запроса на бэкенд для создания пользователя
         sendRequestToBackend(signature, userInfo.id, secretKey);
-        if (userCreated) {
-          showSlides();
-        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -122,13 +131,16 @@ const Tutorial = ({ id, tutorialStep, nextTutorialStep, go }) => {
   if (!fetchCompleted) {
     return null;
   }
-
+  if (userCreated){
+    showSlides();
+  }
   go("main");
 
   return (
     <Panel id={id}>
       <PanelHeader>Valentinki</PanelHeader>
-      <Group className="tutorial__block"></Group>
+      <Group className="tutorial__block">
+      </Group>
     </Panel>
   );
 };

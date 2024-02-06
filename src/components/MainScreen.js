@@ -323,7 +323,7 @@ const MainScreen = ({ go }) => {
       id="main"
       style={{ display: "flex", justifyContent: "space-between", gap: "10px" }}
     >
-      <PanelHeader>Valentinki</PanelHeader>
+      <PanelHeader>Валентинки</PanelHeader>
 
       {/* Блок запроса доступа к профилю */}
       {!profileAccessGranted && !profileDataLoaded && (
@@ -424,7 +424,7 @@ const MainScreen = ({ go }) => {
                     marginBottom: "10px",
                   }}
                 >
-                  О приходе новой валентинки
+                 Проверь свои валентинки
                 </span>
               </Div>
               <Switch
