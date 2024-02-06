@@ -11,7 +11,7 @@ import {
 } from "@vkontakte/vkui";
 import "../styles/Tutorial.css";
 
-const Tutorial = ({ id, tutorialStep, nextTutorialStep, go }) => {
+const Tutorial = ({ id, go }) => {
   const [userCreated, setUserCreated] = useState(false);
   const [fetchCompleted, setFetchCompleted] = useState(false);
 
@@ -43,7 +43,7 @@ const Tutorial = ({ id, tutorialStep, nextTutorialStep, go }) => {
           },
           title: "Начнем работу?",
           subtitle:
-            "Приложение позволяет вам самостоятельно создавать валентинки, выбирать получателя и отправлять их анонимно или не анонимно.",
+            "Создай валентинку и отправь своим друзьям.",
         },
       ];
 
@@ -101,6 +101,7 @@ const Tutorial = ({ id, tutorialStep, nextTutorialStep, go }) => {
         if (response.ok) {
           console.log("User created successfully!");
           setUserCreated(true);
+          showSlides();
         } else {
           console.error("Failed to create user:", response.statusText);
           if (response.status === 400) {
@@ -131,14 +132,10 @@ const Tutorial = ({ id, tutorialStep, nextTutorialStep, go }) => {
   if (!fetchCompleted) {
     return null;
   }
-  if (userCreated){
-    showSlides();
-  }
   go("main");
-
   return (
     <Panel id={id}>
-      <PanelHeader>Valentinki</PanelHeader>
+      <PanelHeader>Валентинки</PanelHeader>
       <Group className="tutorial__block">
       </Group>
     </Panel>
