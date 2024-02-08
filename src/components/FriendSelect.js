@@ -114,6 +114,7 @@ const SendValentineFriendSelect = ({ onNext, onSelectFriend, go }) => {
           body: JSON.stringify({
             vk_id: userSenderVkId,
             friend_token: status ? "1" : "0",
+            //friend_token_text: "YOUR_TOKEN_VALUE_HERE", // Установка значения токена
           }),
         }
       );
@@ -257,7 +258,7 @@ const SendValentineFriendSelect = ({ onNext, onSelectFriend, go }) => {
         const idsArray = valentine.map((v) => v.recipientId);
         const ids = idsArray.join(",");
 
-        const getUsersById = await vkApi.getUserInfoById(ids);
+        const getUsersById = await vkApi.getUserInfo(ids);
 
         if (getUsersById && getUsersById.length > 0) {
           const recipientsData = getUsersById.map((user) => ({

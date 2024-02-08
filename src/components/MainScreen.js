@@ -31,8 +31,8 @@ const MainScreen = ({ go }) => {
     const checkTokenStatus = async () => {
       try {
         // Получение ID отправителя
-        const userInfo = await bridge.send("VKWebAppGetUserInfo");
-        await getDefaultTokenStatus(userInfo.id);
+        //const userInfo = await bridge.send("VKWebAppGetUserInfo");
+        //await getDefaultTokenStatus(userInfo.id);
         getNotificationStatus();
         setProfileDataLoaded(false);
       } catch (error) {
@@ -43,7 +43,7 @@ const MainScreen = ({ go }) => {
   }, []);
 
   // Инициализация пользователя и проверка доступа к профилю
-  const grantProfileAccess = async () => {
+  /*const grantProfileAccess = async () => {
     try {
       const profilePermissionGranted = await vkApi.init();
       if (profilePermissionGranted) {
@@ -57,14 +57,15 @@ const MainScreen = ({ go }) => {
     } catch (error) {
       console.error("Error granting access to profile:", error);
     }
-  };
+  };*/
 
   useEffect(() => {
     async function loadUser() {
       try {
-        await vkApi.init();
+        //await vkApi.init();
         const userInfo = await vkApi.getUserInfo();
         setUser(userInfo);
+        console.log(user)
         setUserLoading(false);
         setLoader(false);
         setProfileDataLoaded(true);
@@ -75,13 +76,13 @@ const MainScreen = ({ go }) => {
       }
     }
 
-    if (profileAccessGranted) {
+    //if (profileAccessGranted) {
       loadUser();
-    }
-  }, [profileAccessGranted]);
+    //}
+  }, [/*profileAccessGranted*/]);
 
   //установка статуса общего токена и сохранение его на бэке
-  const setDefaultToken = async (status) => {
+  /*const setDefaultToken = async (status) => {
     //получение необходимых данных для запросов
     const configString = window.location.href;
     const url = new URL(configString);
@@ -187,7 +188,7 @@ const MainScreen = ({ go }) => {
     } catch (error) {
       console.error("Error getting default token status:", error);
     }
-  };
+  };*/
 
   //установка статуса уведомлений - вкл или выкл
   const setNotificationStatus = async (status) => {
@@ -325,48 +326,15 @@ const MainScreen = ({ go }) => {
     >
       <PanelHeader>Валентинки</PanelHeader>
 
-      {/* Блок запроса доступа к профилю */}
-      {!profileAccessGranted && !profileDataLoaded && (
-        <Div
-          style={{
-            marginTop: "60px",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          <p
-            style={{
-              maxWidth: "325px",
-              marginLeft: "auto",
-              marginRight: "auto",
-              textAlign: "center",
-              fontSize: "16px",
-            }}
-          >
-            Для этого раздела нужен доступ к Вашему профилю
-          </p>
-          <Button
-            className="access__button"
-            style={{
-              maxWidth: "200px",
-              marginLeft: "auto",
-              marginRight: "auto",
-              backgroundColor: "#ff3347",
-            }}
-            onClick={grantProfileAccess}
-          >
-            Предоставить доступ
-          </Button>
-        </Div>
-      )}
+      
       {/* Показывать лоадер, если данные еще не загружены */}
-      {loader && profileAccessGranted && (
+      {loader &&  (
         <div className="loader-container">
           <div className="loader"></div>
         </div>
       )}
       {/* Блок профиля, уведомлений и навигационных кнопок */}
-      {profileAccessGranted && !userLoading && (
+      { !userLoading && (
         <>
           {/* Блок профиля */}
           <Div style={{}}>

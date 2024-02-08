@@ -21,7 +21,6 @@ import vkApi from "./utils/Api";
 const App = () => {
   const [activeView, setActiveView] = useState("tutorial");
   const [tutorialStep, setTutorialStep] = useState(1);
- // const [user, setUser] = useState({});
   const [userFriends, setUserFriends] = useState([]);
   const [friendId, setFriendId] = useState(null);
   const [ValentineId, setValentineId] = useState(null);
@@ -77,10 +76,6 @@ const App = () => {
   useEffect(() => {
     sendValentineToBackend();
   }, [message, isAnonymous]);
-
-
-
-  //console.log(vkApi.getUserInfo());
 
   //отправка валентинки
   const sendValentineToBackend = async () => {

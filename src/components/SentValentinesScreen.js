@@ -70,10 +70,15 @@ const SentValentinesScreen = ({ id, go }) => {
         const idsArray = valentine.map((v) => v.recipientId);
         const ids = idsArray.join(",");
 
-        const getUsersById = await vkApi.getUserInfoById(ids);
+        const getUsersById = await vkApi.getRecipients(ids);
 
-        if (getUsersById && getUsersById.length > 0) {
-          const recipientsData = getUsersById.map((user) => ({
+        if (
+          getUsersById &&
+          getUsersById.items &&
+          getUsersById.items.length > 0
+        ) {
+          const usersArray = getUsersById.items;
+          const recipientsData = usersArray.map((user) => ({
             userId: user.id,
             firstName: user.first_name,
             lastName: user.last_name,
@@ -293,8 +298,8 @@ const SentValentinesScreen = ({ id, go }) => {
                 }`}
                 alt="Background"
                 style={{
-                  width: "80%",
-                  top: "14%",
+                  width: "90%",
+                  top: "6%",
                   objectFit: "cover",
                   position: "absolute",
                   borderRadius: "10px",
@@ -308,8 +313,8 @@ const SentValentinesScreen = ({ id, go }) => {
                 }`}
                 alt="Background"
                 style={{
-                  width: "80%",
-                  top: "14%",
+                  width: "90%",
+                  top: "6%",
                   height: "auto",
                   objectFit: "cover",
                   position: "absolute",

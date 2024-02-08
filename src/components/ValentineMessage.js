@@ -47,7 +47,7 @@ const SendValentineMessage = ({ go, onSelectMessage, onNext }) => {
         <Div>
           <p>Хотите написать сообщение к валентинке?</p>
           <Textarea
-            placeholder="Текст сообщения"
+            placeholder="Поставьте хотя бы смайлик :)"
             value={text}
             onChange={(e) => setText(e.target.value)}
             maxLength={MAX_TEXT_LENGTH}

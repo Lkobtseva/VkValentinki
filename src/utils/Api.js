@@ -7,7 +7,7 @@ class VkApi {
     this._friendsAccessRequested = false;
   }
 
-  async init() {
+async init() {
     try {
       const authData = await bridge.send("VKWebAppGetAuthToken", {
         app_id: 51826188,
@@ -32,6 +32,7 @@ class VkApi {
     try {
       // Получение информации о текущем пользователе
       const userInfo = await bridge.send("VKWebAppGetUserInfo");
+      console.log('userInfo', userInfo)
       if (userInfo.id) {
         this._userId = userInfo.id;
       }
@@ -40,42 +41,22 @@ class VkApi {
         console.error("User ID not set");
         return null;
       }
-      const user = await bridge.send("VKWebAppCallAPIMethod", {
-        method: "users.get",
-        params: {
-          user_ids: this._userId,
-          fields: "photo_200,first_name,last_name,",
-          v: "5.131",
-          access_token: this._token,
-        },
-      });
-
-      return user.response[0];
+      return userInfo;
     } catch (error) {
       console.error("Error getting user info:", error);
       return null;
     }
   }
 
-  async getUserInfoById(ids) {
+  /*async getUserInfoById(ids) {
     try {
       if (!ids) {
         console.error("User ID not provided");
 
         return null;
       }
-      const response = await bridge.send("VKWebAppCallAPIMethod", {
-        method: "users.get",
-        params: {
-          user_ids: ids,
-          fields: "photo_200,first_name,last_name",
-          v: "5.131",
-          access_token: this._token,
-          name_case: "dat",
-        },
-      });
 
-      const userInfo = response.response;
+      const userInfo = await bridge.send("VKWebAppGetUserInfo");
       if (userInfo && userInfo.length > 0) {
         userInfo.forEach((user) => {
           const firstName = user.first_name;
@@ -98,7 +79,7 @@ class VkApi {
       console.error("Error getting user info:", error);
       return null;
     }
-  }
+  }*/
 
   async getSenderInfoById(ids) {
     try {
@@ -149,7 +130,8 @@ class VkApi {
       });
 
       this._token = authData.access_token;
-      return true;
+      //return true;
+      return this._token; 
     } catch (error) {
       console.error("Error requesting friends permission:", error);
       return false;
@@ -158,16 +140,36 @@ class VkApi {
 
   async getFriends() {
     try {
+      const token = await vkApi.requestFriendsPermission();
       const friends = await bridge.send("VKWebAppCallAPIMethod", {
         method: "friends.get",
         params: {
           user_id: this._userId,
           fields: "photo_100,first_name,last_name",
           v: "5.131",
-          access_token: this._token,
+          access_token: token,
         },
       });
+      return friends.response;
+    } catch (error) {
+      console.error("Error getting friends:", error);
+      return null;
+    }
+  }
 
+  async getRecipients() {
+    try {
+      const token = await vkApi.requestFriendsPermission();
+      const friends = await bridge.send("VKWebAppCallAPIMethod", {
+        method: "friends.get",
+        params: {
+          user_id: this._userId,
+          fields: "photo_100,first_name,last_name",
+          v: "5.131",
+          access_token: token,
+          name_case: "dat",
+        },
+      });
       return friends.response;
     } catch (error) {
       console.error("Error getting friends:", error);

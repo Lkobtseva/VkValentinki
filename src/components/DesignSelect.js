@@ -123,7 +123,7 @@ const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
                 alignItems: "center",
                 border: "2px solid rgb(193 192 192)",
                 borderRadius: "10px",
-                backgroundSize: "contain",
+                backgroundSize: "cover",
                 backgroundImage:
                   selectedBackground || selectedValentine
                     ? ""
@@ -251,7 +251,7 @@ const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
               }}
               size="l"
               stretched
-              disabled={!selectedBackground && !selectedValentine}
+              disabled={!selectedBackground || !selectedValentine}
               onClick={handleSelectDesign}
             >
               Далее

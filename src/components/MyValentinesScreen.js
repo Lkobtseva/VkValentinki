@@ -101,16 +101,22 @@ const MyValentinesScreen = ({ id, go }) => {
         );
         const ids = idsArray.join(",");
 
-        const getUsersById = await vkApi.getSenderInfoById(ids);
+        const getUsersById = await vkApi.getFriends(ids);
+        // Проверяем наличие массива пользователей в ответе
+        if (
+          getUsersById &&
+          getUsersById.items &&
+          getUsersById.items.length > 0
+        ) {
+          const usersArray = getUsersById.items;
 
-        if (getUsersById && getUsersById.length > 0) {
-          const sendersData = getUsersById.map((user) => ({
+          // Преобразуем полученные данные о пользователях в нужный формат
+          const sendersData = usersArray.map((user) => ({
             userId: user.id,
-            avatar: user.photo_200,
+            avatar: user.photo_100,
             firstName: user.first_name,
             lastName: user.last_name,
           }));
-
           setSendersData(sendersData);
         } else {
           console.error("Error getting user info or empty response");
@@ -427,8 +433,8 @@ const MyValentinesScreen = ({ id, go }) => {
                 }`}
                 alt="Background"
                 style={{
-                  width: "80%",
-                  top: "14%",
+                  width: "90%",
+                  top: "6%",
                   objectFit: "cover",
                   position: "absolute",
                   borderRadius: "10px",
@@ -442,8 +448,8 @@ const MyValentinesScreen = ({ id, go }) => {
                 }`}
                 alt="Background"
                 style={{
-                  width: "80%",
-                  top: "14%",
+                  width: "90%",
+                  top: "6%",
                   height: "auto",
                   objectFit: "cover",
                   position: "absolute",
