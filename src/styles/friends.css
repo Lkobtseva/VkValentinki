@@ -42,6 +42,9 @@
 }
 .friend-card:last-child {
   margin-bottom: 100px;
+  border-radius: 0px;
+  padding-bottom: 20px;
+  border-bottom: 0.5px solid grey;
 }
 
 /* Стили для аватарки друга */
@@ -83,33 +86,7 @@
   position: absolute;
   right: 20px;
 }
-/*.popupContainer {
-  align-items: center;
-  background-color: #ff3347;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  margin-left: auto;
-  margin-right: auto;
-  position: fixed;
-  top: 35%;
-  left: 50%;
-  border-radius: 10px;
-  transform: translate(-50%, -50%);
-  z-index: 3;
-  width: 60%;
-}
-.popup__button{
-background-image: url(../images/Close.svg);
-background-position: right;
-margin-top: -5px;
-background-repeat: no-repeat;
-color: #fff;
-margin-left: 90%;
-}
-.popup__button:active {
-  filter: brightness(0.8); 
-}*/
+
 .access__button:active {
   filter: brightness(0.8); 
 }

@@ -26,13 +26,11 @@ const MainScreen = ({ go }) => {
   const [userLoading, setUserLoading] = useState(true);
   const [loader, setLoader] = useState(true);
   const [profileDataLoaded, setProfileDataLoaded] = useState(true);
+
   // Функция для получения статуса токена при монтировании компонента
   useEffect(() => {
     const checkTokenStatus = async () => {
       try {
-        // Получение ID отправителя
-        //const userInfo = await bridge.send("VKWebAppGetUserInfo");
-        //await getDefaultTokenStatus(userInfo.id);
         getNotificationStatus();
         setProfileDataLoaded(false);
       } catch (error) {
@@ -42,30 +40,11 @@ const MainScreen = ({ go }) => {
     checkTokenStatus();
   }, []);
 
-  // Инициализация пользователя и проверка доступа к профилю
-  /*const grantProfileAccess = async () => {
-    try {
-      const profilePermissionGranted = await vkApi.init();
-      if (profilePermissionGranted) {
-        console.log("Access granted");
-        setProfileAccessGranted(true);
-        await setDefaultToken(true);
-      } else {
-        console.log("Access denied");
-        setProfileAccessGranted(false);
-      }
-    } catch (error) {
-      console.error("Error granting access to profile:", error);
-    }
-  };*/
-
   useEffect(() => {
     async function loadUser() {
       try {
-        //await vkApi.init();
         const userInfo = await vkApi.getUserInfo();
         setUser(userInfo);
-        console.log(user)
         setUserLoading(false);
         setLoader(false);
         setProfileDataLoaded(true);
@@ -75,120 +54,8 @@ const MainScreen = ({ go }) => {
         setLoading(false);
       }
     }
-
-    //if (profileAccessGranted) {
-      loadUser();
-    //}
-  }, [/*profileAccessGranted*/]);
-
-  //установка статуса общего токена и сохранение его на бэке
-  /*const setDefaultToken = async (status) => {
-    //получение необходимых данных для запросов
-    const configString = window.location.href;
-    const url = new URL(configString);
-    const params = url.searchParams;
-    const signature = params.get("sign");
-
-    //получаем AuthString
-    function getAuthString() {
-      const VK_PREFIX = "vk_";
-      const url = new URL(window.location.href);
-      const params = url.searchParams;
-
-      return params
-        .toString()
-        .split("&")
-        .filter((p) => p.startsWith(VK_PREFIX))
-        .sort()
-        .join("&");
-    }
-    const authString = getAuthString();
-
-    // Получение ID отправителя
-    const userInfo = await bridge.send("VKWebAppGetUserInfo");
-    const userSenderVkId = userInfo?.id.toString();
-    try {
-      const response = await fetch(
-        "https://valentine.itc-hub.ru/api/v1/setdefaulttoken",
-        {
-          method: "POST",
-          headers: {
-            Authorization: authString,
-            Sign: signature,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            vk_id: userSenderVkId,
-            default_token: status ? "1" : "0",
-          }),
-        }
-      );
-
-      const data = await response.json();
-      if (data.status === "save") {
-        setProfileAccessGranted(true);
-        console.log("Default tooken status saved successfully.");
-      } else {
-        setProfileAccessGranted(false);
-        console.error("Failed to save default token status.");
-      }
-    } catch (error) {
-      console.error("Error setting default token:", error);
-    }
-  };
-
-  //берем статус токена с бэка
-  const getDefaultTokenStatus = async () => {
-    //получение необходимых данных для запросов
-    const configString = window.location.href;
-    const url = new URL(configString);
-    const params = url.searchParams;
-    const signature = params.get("sign");
-
-    //получаем AuthString
-    function getAuthString() {
-      const VK_PREFIX = "vk_";
-      const url = new URL(window.location.href);
-      const params = url.searchParams;
-
-      return params
-        .toString()
-        .split("&")
-        .filter((p) => p.startsWith(VK_PREFIX))
-        .sort()
-        .join("&");
-    }
-    const authString = getAuthString();
-
-    // Получение ID отправителя
-    const userInfo = await bridge.send("VKWebAppGetUserInfo");
-    const userSenderVkId = userInfo.id.toString();
-    try {
-      const response = await fetch(
-        "https://valentine.itc-hub.ru/api/v1/getdefaulttoken",
-        {
-          method: "POST",
-          headers: {
-            Authorization: authString,
-            Sign: signature,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            vk_id: userSenderVkId,
-          }),
-        }
-      );
-
-      const data = await response.json();
-      if (data.default_token === false) {
-        setProfileAccessGranted(false);
-      } else {
-        setProfileAccessGranted(true);
-      }
-    } catch (error) {
-      console.error("Error getting default token status:", error);
-    }
-  };*/
+    loadUser();
+  }, []);
 
   //установка статуса уведомлений - вкл или выкл
   const setNotificationStatus = async (status) => {
@@ -326,15 +193,14 @@ const MainScreen = ({ go }) => {
     >
       <PanelHeader>Валентинки</PanelHeader>
 
-      
       {/* Показывать лоадер, если данные еще не загружены */}
-      {loader &&  (
+      {loader && (
         <div className="loader-container">
           <div className="loader"></div>
         </div>
       )}
       {/* Блок профиля, уведомлений и навигационных кнопок */}
-      { !userLoading && (
+      {!userLoading && (
         <>
           {/* Блок профиля */}
           <Div style={{}}>
@@ -368,7 +234,6 @@ const MainScreen = ({ go }) => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                //height: '135px',
                 paddingTop: "0",
                 paddingBottom: "0px",
                 paddingRight: "32px",
@@ -392,7 +257,7 @@ const MainScreen = ({ go }) => {
                     marginBottom: "10px",
                   }}
                 >
-                 Проверь свои валентинки
+                  Проверь свои валентинки
                 </span>
               </Div>
               <Switch

@@ -16,8 +16,14 @@ import "../styles/message.css";
 const SendValentineMessage = ({ go, onSelectMessage, onNext }) => {
   const [text, setText] = useState("");
   const [isAnon, setIsAnon] = useState(false);
+  const [attemptedSendEmpty, setAttemptedSendEmpty] = useState(false);
 
   const handleSelectMessage = () => {
+    if (!text.trim()) {
+      setAttemptedSendEmpty(true);
+      return;
+    }
+
     onSelectMessage(text, isAnon);
     localStorage.removeItem("selectedValentine");
     localStorage.removeItem("selectedBackground");
@@ -26,15 +32,20 @@ const SendValentineMessage = ({ go, onSelectMessage, onNext }) => {
 
   const handleGoBack = () => {
     const selectedValentine = JSON.parse(
-      localStorage.getItem("selectedValentine","selectedValentineId" )
+      localStorage.getItem("selectedValentine", "selectedValentineId")
     );
     const selectedBackground = JSON.parse(
-      localStorage.getItem("selectedBackground", 'selectedBackgroundId')
+      localStorage.getItem("selectedBackground", "selectedBackgroundId")
     );
-    const selectedValentineId = localStorage.getItem('selectedValentineId');
-  const selectedBackgroundId = localStorage.getItem('selectedBackgroundId');
+    const selectedValentineId = localStorage.getItem("selectedValentineId");
+    const selectedBackgroundId = localStorage.getItem("selectedBackgroundId");
 
-    go("design", { selectedValentine, selectedBackground, selectedBackgroundId,selectedValentineId });
+    go("design", {
+      selectedValentine,
+      selectedBackground,
+      selectedBackgroundId,
+      selectedValentineId,
+    });
   };
 
   const MAX_TEXT_LENGTH = 120; // Максимальное количество символов
@@ -45,7 +56,9 @@ const SendValentineMessage = ({ go, onSelectMessage, onNext }) => {
 
       <FormLayout>
         <Div>
-          <p>Хотите написать сообщение к валентинке?</p>
+          <p style={{ color: attemptedSendEmpty ? "#FF3347" : "" }}>
+            Напишите сообщение к валентинке
+          </p>
           <Textarea
             placeholder="Поставьте хотя бы смайлик :)"
             value={text}
@@ -87,14 +100,14 @@ const SendValentineMessage = ({ go, onSelectMessage, onNext }) => {
             style={{
               color: "white",
               color: text.trim() ? "white" : "black",
-              backgroundColor: text.trim() ? "#FF3347" : "#f2f3f5",
+              backgroundColor: text.trim() ? "#FF3347" : "rgb(213 213 215)",
             }}
             size="l"
             stretched
             onClick={handleSelectMessage}
             data-to="main"
             go={go}
-            disabled={!text.trim()} 
+            //disabled={!text.trim()}
           >
             Отправить
           </Button>

@@ -26,6 +26,8 @@ const SendValentineFriendSelect = ({ onNext, onSelectFriend, go }) => {
   const [accessGranted, setAccessGranted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [friendsDataLoaded, setFriendsDataLoaded] = useState(true);
+  const [error, setError] = useState(false);
+
   //выбор друга и переход к кастому валентинки
   const handleSelectFriend = () => {
     onSelectFriend(selectedFriendId);
@@ -64,6 +66,7 @@ const SendValentineFriendSelect = ({ onNext, onSelectFriend, go }) => {
           setFriends(sortedFriends);
         }
       } catch (error) {
+        setError(true);
         console.error("Error loading friends:", error);
       } finally {
         setLoading(false); // Установка loading в false после загрузки друзей
@@ -114,7 +117,7 @@ const SendValentineFriendSelect = ({ onNext, onSelectFriend, go }) => {
           body: JSON.stringify({
             vk_id: userSenderVkId,
             friend_token: status ? "1" : "0",
-            //friend_token_text: "YOUR_TOKEN_VALUE_HERE", // Установка значения токена
+            friend_token_text: "text",
           }),
         }
       );
@@ -258,7 +261,7 @@ const SendValentineFriendSelect = ({ onNext, onSelectFriend, go }) => {
         const idsArray = valentine.map((v) => v.recipientId);
         const ids = idsArray.join(",");
 
-        const getUsersById = await vkApi.getUserInfo(ids);
+        const getUsersById = await vkApi.getRecipientInfoById(ids);
 
         if (getUsersById && getUsersById.length > 0) {
           const recipientsData = getUsersById.map((user) => ({
@@ -334,6 +337,22 @@ const SendValentineFriendSelect = ({ onNext, onSelectFriend, go }) => {
     };
   }, [popupVisible]);
 
+  if (error) {
+    return (
+      <Div
+        style={{
+          marginTop: "60px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <p style={{ color: "#ff3347", fontSize: "18px", marginBottom: "10px" }}>
+          Ничего не найдено, попробуйте зайти в приложение еще раз
+        </p>
+      </Div>
+    );
+  }
   return (
     <Panel id="friend" className="container">
       <PanelHeader className="header">Выберите друга</PanelHeader>
@@ -404,19 +423,14 @@ const SendValentineFriendSelect = ({ onNext, onSelectFriend, go }) => {
             <Snackbar id="popup" className="popupContainer">
               <p
                 style={{
-                  //maxWidth: "220px",
                   textAlign: "center",
-                  //color: "white",
-                  //marginTop: "5px",
                   fontSize: "16px",
-                  //marginBottom: "10px",
                 }}
               >
                 Вы уже отправили валентинку этому другу.
               </p>
               <p
                 style={{
-                  // maxWidth: "220px",
                   textAlign: "center",
                   //color: "white",
                   //marginTop: "5px",

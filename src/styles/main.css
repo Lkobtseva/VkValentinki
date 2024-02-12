@@ -20,28 +20,6 @@
   filter: brightness(0.8);
 }
 
-/*.custom-notification {
-  border-radius: 10px;
-  position: relative;
-  max-height: 20px;
-  margin-left: 50px;
-  margin-right: 50px;
-  margin-top: -200px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #ff3448;
-  color: white;
-  opacity: 1;
-  transition: opacity 0.7s ease, transform 0.7s ease;
-  padding: 15px;
-}
-
-.custom-notification.hidden {
-  opacity: 0;
-  transform: translateY(100%);
-}*/
-
 @media screen and (max-width: 600px) {
   .valentine__popup {
     width: 80%;
@@ -71,4 +49,8 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+.arrow{
+  background-image: url(../images/arrow.png);
+  background-repeat: no-repeat;
 }

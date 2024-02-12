@@ -13,6 +13,7 @@ import "../styles/main.css";
 import vkApi from "../utils/Api";
 import "../styles/received.css";
 import anonim from "../images/avatar.svg";
+import arrow from "../images/arrow.png";
 
 const MyValentinesScreen = ({ id, go }) => {
   const [receivedValentines, setReceivedValentines] = useState([]);
@@ -418,7 +419,6 @@ const MyValentinesScreen = ({ id, go }) => {
                 style={{
                   width: "100%",
                   height: "100%",
-                  //top: "14%",
                   objectFit: "cover",
                   position: "absolute",
                   borderRadius: "10px",
@@ -485,7 +485,36 @@ const MyValentinesScreen = ({ id, go }) => {
           </Div>
         )}
       </Div>
-      <Div alignY="center" className="custom-popout-wrapper"></Div>
+      <Div /*</Panel>alignY="center"*/ className="custom-popout-wrapper"></Div>
+      <Div
+        //alignX="center"
+        style={{ bottom: "7%", position: "fixed", paddingLeft: "24px" }}
+      >
+        <Button
+          className="nav__button"
+          style={{
+            color: "white",
+            backgroundColor: "#FF3347",
+            marginTop: "15px",
+            border: "1px solid white",
+          }}
+          size="l"
+          stretched
+          onClick={() => go("main")}
+        >
+          <img
+            style={{
+              width: "25px",
+              height: "25px",
+              marginTop: "auto",
+              marginBottom: "auto",
+              marginRight: "5px",
+            }}
+            src={arrow}
+          ></img>
+          <p style={{ marginRight: "10px" }}>Назад</p>
+        </Button>
+      </Div>
       <Navigator go={go} />
     </Panel>
   );

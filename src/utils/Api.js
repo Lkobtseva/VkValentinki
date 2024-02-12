@@ -7,7 +7,7 @@ class VkApi {
     this._friendsAccessRequested = false;
   }
 
-async init() {
+  async init() {
     try {
       const authData = await bridge.send("VKWebAppGetAuthToken", {
         app_id: 51826188,
@@ -32,7 +32,6 @@ async init() {
     try {
       // Получение информации о текущем пользователе
       const userInfo = await bridge.send("VKWebAppGetUserInfo");
-      console.log('userInfo', userInfo)
       if (userInfo.id) {
         this._userId = userInfo.id;
       }
@@ -48,38 +47,31 @@ async init() {
     }
   }
 
-  /*async getUserInfoById(ids) {
+  async getRecipientInfoById(ids) {
     try {
       if (!ids) {
         console.error("User ID not provided");
 
         return null;
       }
+      const response = await bridge.send("VKWebAppCallAPIMethod", {
+        method: "users.get",
+        params: {
+          user_ids: ids,
+          fields: "photo_200,first_name,last_name",
+          v: "5.131",
+          access_token: this._token,
+          name_case: "nom",
+        },
+      });
 
-      const userInfo = await bridge.send("VKWebAppGetUserInfo");
-      if (userInfo && userInfo.length > 0) {
-        userInfo.forEach((user) => {
-          const firstName = user.first_name;
-          const lastName = user.last_name;
-
-          if (firstName && lastName) {
-            //console.log(`Пользователь установлен`);
-          } else {
-            console.error(
-              "Отсутствуют данные о пользователе или не хватает свойств"
-            );
-          }
-        });
-        return userInfo;
-      } else {
-        console.error("User info not found");
-        return null;
-      }
+      const userInfo = response.response;
+      return userInfo;
     } catch (error) {
       console.error("Error getting user info:", error);
       return null;
     }
-  }*/
+  }
 
   async getSenderInfoById(ids) {
     try {
@@ -100,22 +92,7 @@ async init() {
       });
 
       const userInfo = response.response;
-     /* if (userInfo && userInfo.length > 0) {
-        userInfo.forEach((user) => {
-          const firstName = user.first_name;
-          const lastName = user.last_name;
-
-          if (firstName && lastName) {
-            console.log(`Пользователь: ${firstName} ${lastName}`);
-          } else {
-            console.error("Отсутствуют данные о пользователе или не хватает свойств");
-          }
-        });*/
-        return userInfo;
-      /*} else {
-        console.error("User info not found");
-        return null;
-      }*/
+      return userInfo;
     } catch (error) {
       console.error("Error getting user info:", error);
       return null;
@@ -131,7 +108,7 @@ async init() {
 
       this._token = authData.access_token;
       //return true;
-      return this._token; 
+      return this._token;
     } catch (error) {
       console.error("Error requesting friends permission:", error);
       return false;
