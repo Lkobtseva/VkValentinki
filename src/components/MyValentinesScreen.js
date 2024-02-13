@@ -488,7 +488,7 @@ const MyValentinesScreen = ({ id, go }) => {
       <Div /*</Panel>alignY="center"*/ className="custom-popout-wrapper"></Div>
       <Div
         //alignX="center"
-        style={{ bottom: "7%", position: "fixed", paddingLeft: "24px" }}
+        style={{ bottom: "10%", position: "fixed", paddingLeft: "24px" }}
       >
         <Button
           className="nav__button"
