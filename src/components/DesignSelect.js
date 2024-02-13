@@ -149,7 +149,7 @@ const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
                   src={selectedValentine.image}
                   style={{
                     position: "absolute",
-                    width: "80%",
+                    width: "84%",
                     height: "80%",
                     borderRadius: "10px",
                     objectFit: "cover",
