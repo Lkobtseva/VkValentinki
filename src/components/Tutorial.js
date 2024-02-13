@@ -21,7 +21,7 @@ const Tutorial = ({ id, go }) => {
         {
           media: {
             type: "image",
-            blob: "data:image/png;base64,[IMAGE_DATA]",
+            blob: "data:image/png;base64,[https://valentine.itc-hub.ru/static/items/2.png]",
           },
           title: 'Добро пожаловать в приложение "Валентинки"!',
           subtitle:

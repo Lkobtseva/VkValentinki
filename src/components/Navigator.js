@@ -42,6 +42,7 @@ const Navigator = ({ go }) => {
           display: "flex",
           justifyContent: "space-around",
           paddingTop: "0px",
+          height: '65px'
         }}
       >
         {/* Кнопка "Отправить" */}

@@ -1,7 +1,5 @@
 /* Стили для поисковой строки */
 .search-bar {
-  /*background-color: #fff;
-    border-bottom: 1px solid #ccc;*/
   padding: 10px 15px 10px;
   text-align: center;
 }
@@ -33,7 +31,6 @@
   display: flex;
   margin-bottom: 10px;
   padding: 10px;
-  /*border: 1px solid #ccc;*/
   border-radius: 10px;
   box-sizing: border-box;
   cursor: pointer;
