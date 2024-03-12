@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import {
   Panel,
@@ -11,86 +11,40 @@ import {
 import "../styles/design.css";
 import Navigator from "./Navigator";
 import baseBackground from "../images/baseVal.svg";
+import useValentinesData from "../hooks/useValentinesData";
+const SendValentineDesignSelect = ({ go, onNext, onSelectDesign, baseUrl }) => {
 
-const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
-  const [valentines, setValentines] = useState([]);
-  const [backgrounds, setBackgrounds] = useState([]);
-  const [selectedValentineId, setSelectedValentineId] = useState(() => {
-    const storedValentineId = localStorage.getItem("selectedValentineId");
-    return storedValentineId ? JSON.parse(storedValentineId) : null;
-  });
-  const [selectedBackgroundId, setSelectedBackgroundId] = useState(() => {
-    const storedBackgroundId = localStorage.getItem("selectedBackgroundId");
-    return storedBackgroundId ? JSON.parse(storedBackgroundId) : null;
-  });
+  const getInitialState = (key) => {
+    const storedValue = localStorage.getItem(key);
+    return storedValue ? JSON.parse(storedValue) : null;
+  };
 
-  const [selectedValentine, setSelectedValentine] = useState(() => {
-    const storedValentine = localStorage.getItem("selectedValentine");
-    return storedValentine ? JSON.parse(storedValentine) : null;
-  });
+  const [selectedValentineId, setSelectedValentineId] = useState(getInitialState("selectedValentineId"));
+  const [selectedBackgroundId, setSelectedBackgroundId] = useState(getInitialState("selectedBackgroundId"));
+  const [selectedValentine, setSelectedValentine] = useState(getInitialState("selectedValentine"));
+  const [selectedBackground, setSelectedBackground] = useState(getInitialState("selectedBackground"));
+  const { valentines, backgrounds } = useValentinesData(baseUrl);
 
-  const [selectedBackground, setSelectedBackground] = useState(() => {
-    const storedBackground = localStorage.getItem("selectedBackground");
-    return storedBackground ? JSON.parse(storedBackground) : null;
-  });
-
+  //общая функция для сохранения выбранных фона и валентинки в LocalStorage
   const saveToLocalStorage = (key, value) => {
     localStorage.setItem(key, JSON.stringify(value));
   };
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const response = await fetch(
-          "https://valentine.itc-hub.ru/api/v1/getvalentines",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        const valentinesWithFullPaths = data.valentines.map((valentine) => ({
-          ...valentine,
-          image: `https://valentine.itc-hub.ru${valentine.image}`,
-          icon_valentine: `https://valentine.itc-hub.ru${valentine.icon_valentine}`,
-        }));
-
-        const backgroundsWithFullPaths = data.backgrounds.map((background) => ({
-          ...background,
-          image_background: `https://valentine.itc-hub.ru${background.image_background}`,
-          icon_background: `https://valentine.itc-hub.ru${background.icon_background}`,
-        }));
-
-        setValentines(valentinesWithFullPaths);
-        setBackgrounds(backgroundsWithFullPaths);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    }
-
-    fetchData();
-  }, []);
-
+  //выбор и подстановка валентинки
   const handleValentineClick = (id) => {
     const valentine = valentines.find((v) => v.id === id);
     setSelectedValentine(valentine);
     setSelectedValentineId(id);
   };
 
+  //выбор и подстановка фона 
   const handleBackgroundClick = (id) => {
     const background = backgrounds.find((b) => b.id === id);
     setSelectedBackground(background);
     setSelectedBackgroundId(id);
   };
 
+  //выбор фона и валентинки для отправки
   const handleSelectDesign = () => {
     onSelectDesign(selectedValentineId, selectedBackgroundId);
     saveToLocalStorage("selectedValentineId", selectedValentineId);
@@ -123,7 +77,8 @@ const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
                 alignItems: "center",
                 border: "2px solid rgb(193 192 192)",
                 borderRadius: "10px",
-                backgroundSize: "cover",
+                backgroundSize: "contain",
+                backgroundColor: "white",
                 backgroundImage:
                   selectedBackground || selectedValentine
                     ? ""
@@ -184,9 +139,8 @@ const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
                     }}
                   >
                     <Avatar
-                      className={`background__icon ${
-                        selectedBackgroundId === background.id ? "selected" : ""
-                      }`}
+                      className={`background__icon ${selectedBackgroundId === background.id ? "selected" : ""
+                        }`}
                       size={55}
                       mode="app"
                       src={background.icon_background}
@@ -218,9 +172,8 @@ const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
                     style={{ marginRight: "20px", padding: 0 }}
                   >
                     <Avatar
-                      className={`background__icon ${
-                        selectedValentineId === valentine.id ? "selected" : ""
-                      }`}
+                      className={`background__icon ${selectedValentineId === valentine.id ? "selected" : ""
+                        }`}
                       size={100}
                       mode="app"
                       src={valentine.icon_valentine}
@@ -250,7 +203,7 @@ const SendValentineDesignSelect = ({ go, onNext, onSelectDesign }) => {
                 marginTop: "10px",
               }}
               size="l"
-              stretched
+              stretched="true"
               disabled={!selectedBackground || !selectedValentine}
               onClick={handleSelectDesign}
             >

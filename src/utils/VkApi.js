@@ -6,7 +6,9 @@ class VkApi {
     this._userId = "";
     this._friendsAccessRequested = false;
   }
-
+  getUserId() {
+    return this._userId;
+  }
   async init() {
     try {
       const authData = await bridge.send("VKWebAppGetAuthToken", {
@@ -31,7 +33,9 @@ class VkApi {
   async getUserInfo() {
     try {
       // Получение информации о текущем пользователе
-      const userInfo = await bridge.send("VKWebAppGetUserInfo");
+      const userInfo = await bridge.send("VKWebAppGetUserInfo", {
+        app_id: 51826188,
+      });
       if (userInfo.id) {
         this._userId = userInfo.id;
       }
@@ -40,6 +44,7 @@ class VkApi {
         console.error("User ID not set");
         return null;
       }
+
       return userInfo;
     } catch (error) {
       console.error("Error getting user info:", error);
@@ -50,7 +55,7 @@ class VkApi {
   async getRecipientInfoById(ids) {
     try {
       if (!ids) {
-        console.error("User ID not provided");
+        console.error("User ID not provided_1");
 
         return null;
       }
@@ -76,7 +81,7 @@ class VkApi {
   async getSenderInfoById(ids) {
     try {
       if (!ids) {
-        console.error("User ID not provided");
+        console.error("User ID not provided_2");
 
         return null;
       }
@@ -107,17 +112,19 @@ class VkApi {
       });
 
       this._token = authData.access_token;
-      //return true;
       return this._token;
     } catch (error) {
       console.error("Error requesting friends permission:", error);
       return false;
     }
   }
+  getToken() {
+    return this._token;
+  }
 
   async getFriends() {
     try {
-      const token = await vkApi.requestFriendsPermission();
+      const token = this._token;
       const friends = await bridge.send("VKWebAppCallAPIMethod", {
         method: "friends.get",
         params: {
@@ -136,7 +143,7 @@ class VkApi {
 
   async getRecipients() {
     try {
-      const token = await vkApi.requestFriendsPermission();
+      const token = this._token;
       const friends = await bridge.send("VKWebAppCallAPIMethod", {
         method: "friends.get",
         params: {

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import PropTypes from "prop-types";
 import {
   Panel,
   PanelHeader,
@@ -10,61 +9,43 @@ import {
 } from "@vkontakte/vkui";
 import Navigator from "./Navigator";
 import "../styles/main.css";
-import vkApi from "../utils/Api";
+import vkApi from "../utils/VkApi";
 import "../styles/received.css";
 import anonim from "../images/avatar.svg";
 import arrow from "../images/arrow.png";
+import useValentinesData from "../hooks/useValentinesData";
+import useAuthString from "../hooks/useGetAuthString";
 
-const MyValentinesScreen = ({ id, go }) => {
+const MyValentinesScreen = ({ go, baseUrl }) => {
   const [receivedValentines, setReceivedValentines] = useState([]);
-  const [valentines, setValentines] = useState([]);
-  const [backgrounds, setBackgrounds] = useState([]);
   const [sendersData, setSendersData] = useState([]);
   const [selectedValentine, setSelectedValentine] = useState(null);
   const [popupOpen, setPopupOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { valentines, backgrounds } = useValentinesData(baseUrl);
+  const { signature, authString } = useAuthString();
 
+  //получение отправленных валентинок
   useEffect(() => {
-    const getSentValentines = async () => {
-      const configString = window.location.href;
-      const url = new URL(configString);
-      const params = url.searchParams;
-      const signature = params.get("sign");
-
-      //получаем AuthString
-      function getAuthString() {
-        const VK_PREFIX = "vk_";
-        const url = new URL(window.location.href);
-        const params = url.searchParams;
-
-        return params
-          .toString()
-          .split("&")
-          .filter((p) => p.startsWith(VK_PREFIX))
-          .sort()
-          .join("&");
+    const getValentinesReceived = async () => {
+      if (!authString || !signature) {
+        return;
       }
-      const authString = getAuthString();
-
-      // Получение ID отправителя
       const userInfo = await vkApi.getUserInfo();
       const userSenderVkId = userInfo.id.toString();
       setLoading(true);
       try {
-        const response = await fetch(
-          "https://valentine.itc-hub.ru/api/v1/getvalentinereceived",
-          {
-            method: "POST",
-            headers: {
-              Authorization: authString,
-              Sign: signature,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              vk_id: userSenderVkId,
-            }),
-          }
-        );
+        const response = await fetch(`${baseUrl}/getvalentinereceived`, {
+          method: "POST",
+          headers: {
+            Authorization: authString,
+            Sign: signature,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            vk_id: userSenderVkId,
+          }),
+        });
 
         const data = await response.json();
 
@@ -103,7 +84,6 @@ const MyValentinesScreen = ({ id, go }) => {
         const ids = idsArray.join(",");
 
         const getUsersById = await vkApi.getFriends(ids);
-        // Проверяем наличие массива пользователей в ответе
         if (
           getUsersById &&
           getUsersById.items &&
@@ -111,7 +91,6 @@ const MyValentinesScreen = ({ id, go }) => {
         ) {
           const usersArray = getUsersById.items;
 
-          // Преобразуем полученные данные о пользователях в нужный формат
           const sendersData = usersArray.map((user) => ({
             userId: user.id,
             avatar: user.photo_100,
@@ -120,7 +99,7 @@ const MyValentinesScreen = ({ id, go }) => {
           }));
           setSendersData(sendersData);
         } else {
-          console.error("Error getting user info or empty response");
+          console.error("Error getting user info or empty response_2");
         }
         setLoading(false);
         setReceivedValentines([
@@ -131,47 +110,10 @@ const MyValentinesScreen = ({ id, go }) => {
         console.error(error);
       }
     };
-    getSentValentines();
-  }, []);
+    getValentinesReceived();
+  }, [authString, signature]);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const response = await fetch(
-          "https://valentine.itc-hub.ru/api/v1/getvalentines",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        const valentinesWithFullPaths = data.valentines.map((valentine) => ({
-          ...valentine,
-          image: `https://valentine.itc-hub.ru${valentine.image}`,
-        }));
-
-        const backgroundsWithFullPaths = data.backgrounds.map((background) => ({
-          ...background,
-          image_background: `https://valentine.itc-hub.ru${background.image_background}`,
-        }));
-        setValentines(valentinesWithFullPaths);
-        setBackgrounds(backgroundsWithFullPaths);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    }
-
-    fetchData();
-  }, []);
-
+  //попап
   const openPopup = (valentineId) => {
     const valentines = receivedValentines.find((v) => v.id === valentineId);
     setSelectedValentine(valentines);
@@ -200,6 +142,7 @@ const MyValentinesScreen = ({ id, go }) => {
     };
   }, [popupOpen]);
 
+  //рендер
   const renderReceivedValentines = () => {
     return receivedValentines.map((valentine) => {
       const senderId = Number(valentine.senderId);
@@ -224,9 +167,8 @@ const MyValentinesScreen = ({ id, go }) => {
         } else if (daysDifference === 1) {
           return "вчера";
         } else if (daysDifference > 1) {
-          return `${daysDifference} дн${
-            daysDifference > 1 && daysDifference < 4 ? "я " : "ей "
-          }назад`;
+          return `${daysDifference} дн${daysDifference > 1 && daysDifference < 4 ? "я " : "ей "
+            }назад`;
         }
 
         return dateString;
@@ -237,13 +179,13 @@ const MyValentinesScreen = ({ id, go }) => {
       const avatarStyle = {
         ...(valentine.isAnonymous
           ? {
-              backgroundImage: `url(${anonim})`,
-              backgroundColor: "black",
-              backgroundSize: "cover",
-            }
+            backgroundImage: `url(${anonim})`,
+            backgroundColor: "black",
+            backgroundSize: "cover",
+          }
           : valentine.match || !valentine.isAnonymous
-          ? { backgroundImage: `url(${sender.avatar})` }
-          : {}),
+            ? { backgroundImage: `url(${sender.avatar})` }
+            : {}),
       };
 
       const getHeartClass = (valentine) => {
@@ -357,7 +299,7 @@ const MyValentinesScreen = ({ id, go }) => {
 
   return (
     <Panel id={"myValentines"}>
-      <FixedLayout filled vertical="top">
+      <FixedLayout filled vertical="top" style={{ marginBottom: "25px" }}>
         <PanelHeader>Полученные</PanelHeader>
       </FixedLayout>
 
@@ -410,11 +352,10 @@ const MyValentinesScreen = ({ id, go }) => {
               }}
             >
               <img
-                src={`${
-                  backgrounds.find(
-                    (b) => b.id === selectedValentine.backgroundId
-                  )?.image_background
-                }`}
+                src={`${backgrounds.find(
+                  (b) => b.id === selectedValentine.backgroundId
+                )?.image_background
+                  }`}
                 alt="Background"
                 style={{
                   width: "100%",
@@ -426,11 +367,10 @@ const MyValentinesScreen = ({ id, go }) => {
                 }}
               />
               <img
-                src={`${
-                  backgrounds.find(
-                    (b) => b.id === selectedValentine.backgroundId
-                  )?.image_background
-                }`}
+                src={`${backgrounds.find(
+                  (b) => b.id === selectedValentine.backgroundId
+                )?.image_background
+                  }`}
                 alt="Background"
                 style={{
                   width: "90%",
@@ -442,10 +382,9 @@ const MyValentinesScreen = ({ id, go }) => {
                 }}
               />
               <img
-                src={`${
-                  valentines.find((b) => b.id === selectedValentine.imageId)
+                src={`${valentines.find((b) => b.id === selectedValentine.imageId)
                     ?.image
-                }`}
+                  }`}
                 alt="Background"
                 style={{
                   width: "90%",
@@ -485,11 +424,8 @@ const MyValentinesScreen = ({ id, go }) => {
           </Div>
         )}
       </Div>
-      <Div /*</Panel>alignY="center"*/ className="custom-popout-wrapper"></Div>
-      <Div
-        //alignX="center"
-        style={{ bottom: "10%", position: "fixed", paddingLeft: "24px" }}
-      >
+      <Div className="custom-popout-wrapper"></Div>
+      <Div style={{ bottom: "12%", position: "fixed", paddingLeft: "24px" }}>
         <Button
           className="nav__button"
           style={{
@@ -499,7 +435,7 @@ const MyValentinesScreen = ({ id, go }) => {
             border: "1px solid white",
           }}
           size="l"
-          stretched
+          stretched="true"
           onClick={() => go("main")}
         >
           <img

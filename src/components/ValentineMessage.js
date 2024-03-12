@@ -31,14 +31,13 @@ const SendValentineMessage = ({ go, onSelectMessage, onNext }) => {
   };
 
   const handleGoBack = () => {
-    const selectedValentine = JSON.parse(
-      localStorage.getItem("selectedValentine", "selectedValentineId")
-    );
-    const selectedBackground = JSON.parse(
-      localStorage.getItem("selectedBackground", "selectedBackgroundId")
-    );
-    const selectedValentineId = localStorage.getItem("selectedValentineId");
-    const selectedBackgroundId = localStorage.getItem("selectedBackgroundId");
+    const storedData = JSON.parse(localStorage.getItem("storedData")) || {};
+    const {
+      selectedValentineId,
+      selectedBackgroundId,
+      selectedValentine,
+      selectedBackground,
+    } = storedData;
 
     go("design", {
       selectedValentine,
@@ -103,11 +102,9 @@ const SendValentineMessage = ({ go, onSelectMessage, onNext }) => {
               backgroundColor: text.trim() ? "#FF3347" : "rgb(213 213 215)",
             }}
             size="l"
-            stretched
+            stretched="true"
             onClick={handleSelectMessage}
             data-to="main"
-            go={go}
-            //disabled={!text.trim()}
           >
             Отправить
           </Button>
@@ -118,9 +115,8 @@ const SendValentineMessage = ({ go, onSelectMessage, onNext }) => {
               marginTop: "15px",
             }}
             size="l"
-            stretched
+            stretched="true"
             onClick={handleGoBack}
-            go={go}
           >
             Назад
           </Button>

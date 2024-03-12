@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import ReactDOM from "react-dom";
 import {
   ConfigProvider,
   AdaptivityProvider,
@@ -8,35 +7,32 @@ import {
 } from "@vkontakte/vkui";
 import "@vkontakte/vkui/dist/vkui.css";
 import "./index.css";
-import Tutorial from "./components/Tutorial";
 import MainScreen from "./components/MainScreen";
 import SendValentineDesignSelect from "./components/DesignSelect";
 import SendValentineMessage from "./components/ValentineMessage";
-import CustomNotification from "./components/SendValentineSuccess";
 import MyValentinesScreen from "./components/MyValentinesScreen";
 import SendValentineFriendSelect from "./components/FriendSelect";
 import SentValentineScreen from "./components/SentValentinesScreen";
-import vkApi from "./utils/Api";
+import useCreateUser from "./hooks/useCreateUser";
+import useSendValentine from "./hooks/useSendValentine";
 
 const App = () => {
-  const [activeView, setActiveView] = useState("tutorial");
-  const [tutorialStep, setTutorialStep] = useState(1);
-  const [userFriends, setUserFriends] = useState([]);
+  const [activeView, setActiveView] = useState("main");
   const [friendId, setFriendId] = useState(null);
   const [ValentineId, setValentineId] = useState(null);
   const [BackgroundId, setBackgroundId] = useState(null);
   const [message, setMessage] = useState("");
   const [isAnonymous, setAnonymous] = useState(false);
+  const baseUrl = 'https://valentine.itc-hub.ru/api/v1';
 
   //инициализация приложения
- useEffect(() => {
+  useEffect(() => {
     let isMounted = true;
 
     const initApp = async () => {
       try {
-  
         if (isMounted) {
-          console.log('success')
+          console.log("success");
         }
       } catch (error) {
         console.error(error);
@@ -50,118 +46,55 @@ const App = () => {
     };
   }, []);
 
+  //установка первого экрана
   const go = (view) => {
     setActiveView(view);
   };
 
-  const nextTutorialStep = () => {
-    setTutorialStep((prevStep) => prevStep + 1);
-  };
-
+  //выбор дизайна валентинки
   const handleSelectDesign = (selectedValentineId, selectedBackgroundId) => {
     setValentineId(selectedValentineId);
     setBackgroundId(selectedBackgroundId);
   };
 
+  //выбор друга 
   const handleSelectFriend = (selectedFriendId) => {
     setFriendId(selectedFriendId);
   };
 
+  //установка сообщения к валентинке
   const handleSelectMessage = (text, isAnon) => {
     setMessage(text);
     setAnonymous(isAnon);
   };
 
-  //чтобы убедиться, что все корректно установились все данные для валентинки
+  //отправка валентинки на бэк
+  const sendValentineToBackend = useSendValentine(baseUrl);
+
   useEffect(() => {
-    sendValentineToBackend();
+    sendValentineToBackend(
+      friendId,
+      ValentineId,
+      BackgroundId,
+      message,
+      isAnonymous
+    );
   }, [message, isAnonymous]);
 
-  //отправка валентинки
-  const sendValentineToBackend = async () => {
-    const configString = window.location.href;
-    const url = new URL(configString);
-    const params = url.searchParams;
-    const signature = params.get("sign");
-
-    //получаем AuthString
-    function getAuthString() {
-      const VK_PREFIX = "vk_";
-      const url = new URL(window.location.href);
-      const params = url.searchParams;
-
-      return params
-        .toString()
-        .split("&")
-        .filter((p) => p.startsWith(VK_PREFIX))
-        .sort()
-        .join("&");
-    }
-    const authString = getAuthString();
-
-    // Получение ID отправителя
-    const userInfo = await vkApi.getUserInfo();
-    const userSenderVkId = userInfo?.id.toString();
-
-    try {
-      const response = await fetch(
-        "https://valentine.itc-hub.ru/api/v1/sendvalentine",
-        {
-          method: "POST",
-          headers: {
-            Authorization: authString,
-            Sign: signature,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            user_sender_vk_id: userSenderVkId,
-            user_recipient_vk_id: friendId,
-            valentine_id: ValentineId,
-            background_id: BackgroundId,
-            text: message,
-            anonim: isAnonymous,
-          }),
-        }
-      );
-
-      if (response.ok) {
-        const container = document.createElement("div");
-        document.body.appendChild(container);
-
-        const customNotification = (
-          <CustomNotification
-            onClose={() => {
-              ReactDOM.unmountComponentAtNode(container);
-              document.body.removeChild(container);
-            }}
-          />
-        );
-        ReactDOM.render(customNotification, container);
-      } else {
-        console.error("Ошибка при отправке данных на бэкенд");
-      }
-    } catch (error) {
-      console.error("Ошибка при отправке данных на бэкенд:", error);
-    }
-  };
+  useEffect(() => {
+    useCreateUser(baseUrl);
+  }, []);
 
   return (
     <ConfigProvider>
       <AdaptivityProvider>
         <AppRoot>
           <View activePanel={activeView}>
-            <Tutorial
-              id="tutorial"
-              tutorialStep={tutorialStep}
-              nextTutorialStep={nextTutorialStep}
-              go={go}
-            />
-
-            <MainScreen id="main" go={go} />
+            <MainScreen id="main" go={go} baseUrl={baseUrl} />
             <SendValentineFriendSelect
               id="friend"
               go={go}
-              friends={userFriends}
+              baseUrl={baseUrl}
               onSelectFriend={handleSelectFriend}
               onNext={() => go("design")}
             />
@@ -169,6 +102,7 @@ const App = () => {
             <SendValentineDesignSelect
               id="design"
               go={go}
+              baseUrl={baseUrl}
               onSelectDesign={handleSelectDesign}
               onNext={() => go("sendValentineMessage")}
             />
@@ -176,11 +110,14 @@ const App = () => {
             <SendValentineMessage
               id="sendValentineMessage"
               go={go}
+              baseUrl={baseUrl}
               onNext={() => go("main")}
-              onSelectMessage={handleSelectMessage}
+              onSelectMessage={(text, isAnon) =>
+                handleSelectMessage(text, isAnon)
+              }
             />
-            <SentValentineScreen id="SentValentines" go={go} />
-            <MyValentinesScreen id="myValentines" go={go} />
+            <SentValentineScreen id="SentValentines" go={go} baseUrl={baseUrl} />
+            <MyValentinesScreen id="myValentines" go={go} baseUrl={baseUrl} />
           </View>
         </AppRoot>
       </AdaptivityProvider>

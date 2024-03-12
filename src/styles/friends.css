@@ -63,7 +63,7 @@
 /* Стили для кнопки "Выбрать" */
 .select-button {
   position: fixed;
-  bottom: 10%;
+  bottom: 15%;
   z-index: 1;
   left: 50%;
   width: 93%;

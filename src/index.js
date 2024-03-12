@@ -19,7 +19,7 @@ bridge
             <App />
           </ErrorBoundary>
         </Router>,
-        root
+        root 
       );
     } else {
       console.error("Ошибка при инициализации VK Mini App");
