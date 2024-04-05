@@ -1,50 +1,67 @@
 .navBar__button1 {
-    background-image: url(../images/sendGrey.svg);
-    background-repeat: no-repeat;
-    background-position: center;
-
+  background-image: url(../images/sendGrey.svg);
+  background-repeat: no-repeat;
+  background-position: center;
 }
-.navBar__button1_active  {
-    background-image: url(../images/sendPink.svg);
-    background-repeat: no-repeat;
-    background-position: center;
+.navigator {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  border-top-color: #3d3d3d;
+  border-top-width: 0.5px;
+  border-top-style: solid;
+}
+.navigator__tabbar {
+  display: flex;
+  justify-content: space-around;
+  padding-top: 0px;
+  height: 65px;
+}
 
+.navigator__tabbar_item {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  padding-top: 7px;
+}
+
+.navBar__button1_active {
+  background-image: url(../images/sendPink.svg);
+  background-repeat: no-repeat;
+  background-position: center;
 }
 .navBar__button2 {
-    background-image: url(../images/profileGray.svg);
-    background-repeat: no-repeat;
-    background-position: center;
-
+  background-image: url(../images/profileGray.svg);
+  background-repeat: no-repeat;
+  background-position: center;
 }
 .navBar__button2_active {
-    background-image: url(../images/profilePink.svg);
-    background-repeat: no-repeat;
-    background-position: center;
-   
+  background-image: url(../images/profilePink.svg);
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
-.profile__span{
-    color: grey;
+.profile__span {
+  color: grey;
 }
-.profile__span_active{
-    color: #FF3347;
+.profile__span_active {
+  color: #ff3347;
 }
 
-.send__span{
-    color: grey;
+.send__span {
+  color: grey;
 }
-.send__span_active{
-    color: #FF3347;
+.send__span_active {
+  color: #ff3347;
 }
 
 .vkuiGroup__inner {
-padding-top: 0;
-padding-bottom: 0;
-
+  padding-top: 0;
+  padding-bottom: 0;
 }
 .vkuiTabbar__in {
-    display: flex;
-    width: 100%;
-    justify-content: space-between;
-    overflow: hidden;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  overflow: hidden;
 }

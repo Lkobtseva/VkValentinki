@@ -15,8 +15,11 @@ import Navigator from "./Navigator";
 import vkApi from "../utils/VkApi";
 import useFriendsToken from "../hooks/useFriendToken";
 import useSentValentines from "../hooks/useGetSentValentines";
+import { useNavigation } from "../your/navigation/context";
+import { PATHS } from "./utils/const";
+import { styled } from "styled-components";
 
-const SendValentineFriendSelect = ({ onNext, onSelectFriend, go, baseUrl }) => {
+const SendValentineFriendSelect = ({ onSelectFriend, baseUrl }) => {
   const [friends, setFriends] = useState([]);
   const [selected, setSelected] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -27,11 +30,12 @@ const SendValentineFriendSelect = ({ onNext, onSelectFriend, go, baseUrl }) => {
   const [error, setError] = useState(false);
   const { sentValentines } = useSentValentines(vkApi, baseUrl);
   const { accessGranted, grantAccess } = useFriendsToken(baseUrl);
+  const { navigate } = useNavigation();
 
   //выбор друга и переход к кастому валентинки
   const handleSelectFriend = () => {
     onSelectFriend(selectedFriendId);
-    onNext();
+    navigate(PATHS.DESIGN_SELECT);
   };
 
   //рендер блока с друзьями
@@ -68,16 +72,16 @@ const SendValentineFriendSelect = ({ onNext, onSelectFriend, go, baseUrl }) => {
       try {
         const data = sentValentines;
 
-        const valentine = Array.isArray(data) ?
-          data.map((item) => ({
-            id: item.id,
-            recipientId: item.user_recipient_vk_id,
-            text: item.text,
-            isAnonymous: item.anonim,
-            backgroundId: item.background_id,
-            imageId: item.valentine_id,
-          })) :
-          [];
+        const valentine = Array.isArray(data)
+          ? data.map((item) => ({
+              id: item.id,
+              recipientId: item.user_recipient_vk_id,
+              text: item.text,
+              isAnonymous: item.anonim,
+              backgroundId: item.background_id,
+              imageId: item.valentine_id,
+            }))
+          : [];
 
         const idsArray = valentine.map((v) => v.recipientId);
         const ids = idsArray.join(",");
@@ -160,24 +164,11 @@ const SendValentineFriendSelect = ({ onNext, onSelectFriend, go, baseUrl }) => {
 
   if (error) {
     return (
-      <Div
-        style={{
-          marginTop: "60px",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <p
-          style={{
-            color: "#ff3347",
-            fontSize: "18px",
-            marginBottom: "10px",
-          }}
-        >
+      <ErrorDiv>
+        <ErrorText>
           Ничего не найдено, попробуйте зайти в приложение еще раз
-        </p>
-      </Div>
+        </ErrorText>
+      </ErrorDiv>
     );
   }
 
@@ -186,50 +177,18 @@ const SendValentineFriendSelect = ({ onNext, onSelectFriend, go, baseUrl }) => {
       <PanelHeader className="header">Выберите друга</PanelHeader>
       {/* Блок запроса доступа */}
       {!accessGranted && !loading && (
-        <Div
-          style={{
-            marginTop: "60px",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          <p
-            style={{
-              maxWidth: "325px",
-              marginLeft: "auto",
-              marginRight: "auto",
-              fontSize: "18px",
-              marginBottom: "0",
-              fontWeight: "bold",
-              color: "#ff3347",
-            }}
-          >
-            Раздел недоступен
-          </p>
-          <p
-            style={{
-              maxWidth: "325px",
-              marginLeft: "auto",
-              marginRight: "auto",
-              textAlign: "center",
-              marginTop: "10px",
-            }}
-          >
+        <AccessDiv>
+          <AccessP>Раздел недоступен</AccessP>
+          <AccessP2>
             Для этого раздела нужен доступ к списку Ваших друзей
-          </p>
-          <Button
+          </AccessP2>
+          <AccessButton
             className="access__button"
-            style={{
-              maxWidth: "200px",
-              marginLeft: "auto",
-              marginRight: "auto",
-              backgroundColor: "#ff3347",
-            }}
             onClick={() => grantAccess()}
           >
             Предоставить доступ
-          </Button>
-        </Div>
+          </AccessButton>
+        </AccessDiv>
       )}
 
       {loading && accessGranted && (
@@ -247,37 +206,18 @@ const SendValentineFriendSelect = ({ onNext, onSelectFriend, go, baseUrl }) => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          {popupVisible && (
+          {popupVisible ? (
             <Snackbar id="popup" className="popupContainer">
-              <p
-                style={{
-                  textAlign: "center",
-                  fontSize: "16px",
-                }}
-              >
+              <p className="error__p">
                 Вы уже отправили валентинку этому другу.
               </p>
-              <p
-                style={{
-                  textAlign: "center",
-                  fontSize: "16px",
-                }}
-              >
+              <p  className="error__p">
                 Отправить можно только один раз.
               </p>
             </Snackbar>
-          )}
-          <Group
-            className="group-container"
-            style={{
-              maxHeight: "1500px",
-              overflowY: "auto",
-              padding: "15px",
-              paddingTop: "0px",
-              paddingBottom: "100px",
-            }}
-          >
-            {filteredFriends.map((friend) => (
+          ) : null}
+          <GroupContainer className="group-container">
+            {filteredFriends?.map((friend) => (
               <Div
                 key={friend.id}
                 className="friend-card"
@@ -297,30 +237,92 @@ const SendValentineFriendSelect = ({ onNext, onSelectFriend, go, baseUrl }) => {
                   !recipientsData.find(
                     (recipient) => recipient.userId === friend.id
                   ) && (
-                    <Button
+                    <SelectButton
                       className="select-button"
-                      style={{
-                        color: "white",
-                        backgroundColor: "#FF3347",
-                      }}
                       onClick={handleSelectFriend}
                     >
                       Выбрать
-                    </Button>
+                    </SelectButton>
                   )}
               </Div>
             ))}
-          </Group>
+          </GroupContainer>
         </div>
       )}
-      <Navigator go={go} />
+      <Navigator />
     </Panel>
   );
 };
 
+// Styled components
+const AccessDiv = styled(Div)`
+  && {
+    margin-top: 60px;
+    display: flex;
+    flex-direction: column;
+  }
+`;
+
+const SelectButton = styled(Button)`
+  && {
+    color: white;
+    background-color: #FF3347;
+  }
+`;
+
+const AccessP = styled.p`
+  max-width: 325px;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 18px;
+  margin-bottom: 0;
+  font-weight: bold;
+  color: #ff3347;
+`;
+
+const AccessP2 = styled.p`
+  max-width: 325px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  margin-top: 10px;
+`;
+
+const AccessButton = styled(Button)`
+  && {
+    max-width: 200px;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #ff3347;
+  }
+`;
+
+const GroupContainer = styled(Group)`
+  && {
+    max-height: 1500px;
+    overflow-y: auto;
+    padding: 15px;
+    padding-top: 0px;
+    padding-bottom: 100px;
+  }
+`;
+
+const ErrorDiv = styled(Div)`
+  && {
+    margin-top: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+`;
+
+const ErrorText = styled.p`
+  color: #ff3347;
+  font-size: 18px;
+  margin-bottom: 10px;
+`;
+
 SendValentineFriendSelect.propTypes = {
-  onNext: PropTypes.func,
-  go: PropTypes.func,
   onSelectFriend: PropTypes.func,
 };
 export default SendValentineFriendSelect;

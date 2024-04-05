@@ -1,3 +1,12 @@
+export const PATHS = {
+    MAIN: "/main",
+    FRIEND_SELECT: "/friend",
+    DESIGN_SELECT: "/design",
+    SEND_VALENTINE_MESSAGE: "/sendValentineMessage",
+    SENT_VALENTINES: "/sentValentines",
+    MY_VALENTINES: "/myValentines"
+};
+
 export const slides = [
     {
         media: {

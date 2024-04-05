@@ -12,11 +12,16 @@ import {
 import "../styles/main.css";
 import Navigator from "./Navigator";
 import "../styles/message.css";
+import { useNavigation } from "../your/navigation/context";
+import { PATHS } from "./utils/const";
+const MAX_TEXT_LENGTH = 120;
+import styled from 'styled-components';
 
-const SendValentineMessage = ({ go, onSelectMessage, onNext }) => {
+const SendValentineMessage = ({ onSelectMessage }) => {
   const [text, setText] = useState("");
   const [isAnon, setIsAnon] = useState(false);
   const [attemptedSendEmpty, setAttemptedSendEmpty] = useState(false);
+  const { navigate } = useNavigation();
 
   const handleSelectMessage = () => {
     if (!text.trim()) {
@@ -27,7 +32,7 @@ const SendValentineMessage = ({ go, onSelectMessage, onNext }) => {
     onSelectMessage(text, isAnon);
     localStorage.removeItem("selectedValentine");
     localStorage.removeItem("selectedBackground");
-    onNext();
+    navigate(PATHS.MAIN);
   };
 
   const handleGoBack = () => {
@@ -39,15 +44,13 @@ const SendValentineMessage = ({ go, onSelectMessage, onNext }) => {
       selectedBackground,
     } = storedData;
 
-    go("design", {
+    navigate(PATHS.DESIGN_SELECT, {
       selectedValentine,
       selectedBackground,
       selectedBackgroundId,
       selectedValentineId,
     });
   };
-
-  const MAX_TEXT_LENGTH = 120; // Максимальное количество символов
 
   return (
     <Panel id={"sendingMessage"}>
@@ -65,34 +68,15 @@ const SendValentineMessage = ({ go, onSelectMessage, onNext }) => {
             maxLength={MAX_TEXT_LENGTH}
           />
         </Div>
-        <Div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
-          }}
-        >
-          <p style={{ marginBottom: "8px" }}>Отправить Анонимно?</p>
-          <Div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              marginLeft: "-30px",
-              paddingTop: 0,
-            }}
-          >
-            <Div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                marginBottom: "-20px",
-              }}
-            >
+        <QuestionDiv>
+          <QuestionP>Отправить Анонимно?</QuestionP>
+          <SwitchContainer>
+            <SwitchDiv>
               <Switch checked={isAnon} onChange={() => setIsAnon(!isAnon)} />
-              <p style={{ marginLeft: "8px" }}>{isAnon ? "Да" : "Нет"}</p>
-            </Div>
-          </Div>
-        </Div>
+              <QuestionP>{isAnon ? "Да" : "Нет"}</QuestionP>
+            </SwitchDiv>
+          </SwitchContainer>
+        </QuestionDiv>
 
         <Div>
           <Button
@@ -108,30 +92,57 @@ const SendValentineMessage = ({ go, onSelectMessage, onNext }) => {
           >
             Отправить
           </Button>
-          <Button
-            style={{
-              color: "white",
-              backgroundColor: "#FF3347",
-              marginTop: "15px",
-            }}
-            size="l"
-            stretched="true"
-            onClick={handleGoBack}
-          >
+          <BackButton size="l" stretched="true" onClick={handleGoBack}>
             Назад
-          </Button>
+          </BackButton>
         </Div>
       </FormLayout>
       {/* Навигационная панель */}
-      <Navigator go={go} />
+      <Navigator />
     </Panel>
   );
 };
 
+// Styled components
+const BackButton = styled(Button)`
+  && {
+    color: white;
+    background-color: #ff3347;
+    margin-top: 15px;
+  }
+`;
+
+const SwitchDiv = styled(Div)`
+  && {
+    display: flex;
+    align-items: center;
+    margin-bottom: -20px;
+  }
+`;
+
+const SwitchContainer = styled(Div)`
+  && {
+    display: flex;
+    flex-direction: column;
+    margin-left: -30px;
+    padding-top: 0;
+  }
+`;
+
+const QuestionP = styled.p`
+  margin-left: 8px;
+`;
+
+const QuestionDiv = styled(Div)`
+  && {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+`;
+
 SendValentineMessage.propTypes = {
-  go: PropTypes.func,
   onSelectMessage: PropTypes.func,
-  onNext: PropTypes.func,
 };
 
 export default SendValentineMessage;

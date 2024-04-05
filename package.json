@@ -35,7 +35,8 @@
         "@vkontakte/vk-miniapps-deploy": "^0.1.6",
         "cross-env": "^7.0.3",
         "react-hot-loader": "^4.13.0",
-        "react-scripts": "^5.0.1"
+        "react-scripts": "^5.0.1",
+        "typescript": "^5.4.3"
     },
     "resolutions": {
         "react-scripts/webpack-dev-server/yargs/yargs-parser": ">=18.1.2"

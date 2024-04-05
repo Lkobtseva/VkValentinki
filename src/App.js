@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import {
   ConfigProvider,
   AdaptivityProvider,
@@ -8,22 +9,22 @@ import {
 import "@vkontakte/vkui/dist/vkui.css";
 import "./index.css";
 import MainScreen from "./components/MainScreen";
-import SendValentineDesignSelect from "./components/DesignSelect";
+import SendValentineDesignSelect from "./components/DesignSelect.js";
 import SendValentineMessage from "./components/ValentineMessage";
 import MyValentinesScreen from "./components/MyValentinesScreen";
 import SendValentineFriendSelect from "./components/FriendSelect";
 import SentValentineScreen from "./components/SentValentinesScreen";
 import useCreateUser from "./hooks/useCreateUser";
 import useSendValentine from "./hooks/useSendValentine";
+import { PATHS } from "./utils/const";
+const baseUrl = "https://valentine.itc-hub.ru/api/v1";
 
 const App = () => {
-  const [activeView, setActiveView] = useState("main");
   const [friendId, setFriendId] = useState(null);
-  const [ValentineId, setValentineId] = useState(null);
-  const [BackgroundId, setBackgroundId] = useState(null);
+  const [valentineId, setValentineId] = useState(null);
+  const [backgroundId, setBackgroundId] = useState(null);
   const [message, setMessage] = useState("");
   const [isAnonymous, setAnonymous] = useState(false);
-  const baseUrl = 'https://valentine.itc-hub.ru/api/v1';
 
   //инициализация приложения
   useEffect(() => {
@@ -46,10 +47,10 @@ const App = () => {
     };
   }, []);
 
-  //установка первого экрана
-  const go = (view) => {
-    setActiveView(view);
-  };
+  //установка дефолтного маршрута
+  useEffect(() => {
+    navigate(PATHS.MAIN);
+  }, []);
 
   //выбор дизайна валентинки
   const handleSelectDesign = (selectedValentineId, selectedBackgroundId) => {
@@ -57,7 +58,7 @@ const App = () => {
     setBackgroundId(selectedBackgroundId);
   };
 
-  //выбор друга 
+  //выбор друга
   const handleSelectFriend = (selectedFriendId) => {
     setFriendId(selectedFriendId);
   };
@@ -74,8 +75,8 @@ const App = () => {
   useEffect(() => {
     sendValentineToBackend(
       friendId,
-      ValentineId,
-      BackgroundId,
+      valentineId,
+      backgroundId,
       message,
       isAnonymous
     );
@@ -89,36 +90,47 @@ const App = () => {
     <ConfigProvider>
       <AdaptivityProvider>
         <AppRoot>
-          <View activePanel={activeView}>
-            <MainScreen id="main" go={go} baseUrl={baseUrl} />
-            <SendValentineFriendSelect
-              id="friend"
-              go={go}
-              baseUrl={baseUrl}
-              onSelectFriend={handleSelectFriend}
-              onNext={() => go("design")}
-            />
-
-            <SendValentineDesignSelect
-              id="design"
-              go={go}
-              baseUrl={baseUrl}
-              onSelectDesign={handleSelectDesign}
-              onNext={() => go("sendValentineMessage")}
-            />
-
-            <SendValentineMessage
-              id="sendValentineMessage"
-              go={go}
-              baseUrl={baseUrl}
-              onNext={() => go("main")}
-              onSelectMessage={(text, isAnon) =>
-                handleSelectMessage(text, isAnon)
-              }
-            />
-            <SentValentineScreen id="SentValentines" go={go} baseUrl={baseUrl} />
-            <MyValentinesScreen id="myValentines" go={go} baseUrl={baseUrl} />
-          </View>
+            <Router>
+              <Route
+                path={PATHS.MAIN}
+                element={<MainScreen baseUrl={baseUrl} />}
+              />
+              <Route
+                path={PATHS.FRIEND_SELECT}
+                element={
+                  <SendValentineFriendSelect
+                    baseUrl={baseUrl}
+                    onSelectFriend={handleSelectFriend}
+                  />
+                }
+              />
+              <Route
+                path={PATHS.DESIGN_SELECT}
+                element={
+                  <SendValentineDesignSelect
+                    baseUrl={baseUrl}
+                    onSelectDesign={handleSelectDesign}
+                  />
+                }
+              />
+              <Route
+                path={PATHS.SEND_VALENTINE_MESSAGE}
+                element={
+                  <SendValentineMessage
+                    baseUrl={baseUrl}
+                    onSelectMessage={handleSelectMessage}
+                  />
+                }
+              />
+              <Route
+                path={PATHS.SENT_VALENTINES}
+                element={<SentValentineScreen baseUrl={baseUrl} />}
+              />
+              <Route
+                path={PATHS.MY_VALENTINES}
+                element={<MyValentinesScreen baseUrl={baseUrl} />}
+              />
+            </Router>
         </AppRoot>
       </AdaptivityProvider>
     </ConfigProvider>

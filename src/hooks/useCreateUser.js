@@ -1,12 +1,8 @@
 import bridge from "@vkontakte/vk-bridge";
-import { slides } from "../utils/const";
 
 const useCreateUser = (baseUrl) => {
     const sendRequestToBackend = async (
-        signature,
-        vk_id,
-        secretKey,
-        showSlides
+        signature
     ) => {
         function getAuthString() {
             const VK_PREFIX = "vk_";
@@ -24,8 +20,6 @@ const useCreateUser = (baseUrl) => {
             try {
                 const userInfo = await bridge.send("VKWebAppGetUserInfo");
                 if (userInfo.id) {
-                    const secretKey =
-                        process.env.REACT_APP_SECRET_KEY || "defaultSecretKey";
                     const authString = getAuthString();
                     const url = `${baseUrl}/createuser`;
                     const formData = new FormData();
@@ -44,7 +38,6 @@ const useCreateUser = (baseUrl) => {
 
                     if (response.ok) {
                         console.log("User created successfully!");
-                        //showSlides();
                     } else {
                         console.error("Failed to create user:", response.statusText);
                         if (response.status === 400) {

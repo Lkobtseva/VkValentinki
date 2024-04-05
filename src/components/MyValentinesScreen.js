@@ -15,8 +15,11 @@ import anonim from "../images/avatar.svg";
 import arrow from "../images/arrow.png";
 import useValentinesData from "../hooks/useValentinesData";
 import useAuthString from "../hooks/useGetAuthString";
+import { useNavigation } from "../your/navigation/context";
+import { PATHS } from "./utils/const";
+import { styled } from "styled-components";
 
-const MyValentinesScreen = ({ go, baseUrl }) => {
+const MyValentinesScreen = ({ baseUrl }) => {
   const [receivedValentines, setReceivedValentines] = useState([]);
   const [sendersData, setSendersData] = useState([]);
   const [selectedValentine, setSelectedValentine] = useState(null);
@@ -24,6 +27,7 @@ const MyValentinesScreen = ({ go, baseUrl }) => {
   const [loading, setLoading] = useState(true);
   const { valentines, backgrounds } = useValentinesData(baseUrl);
   const { signature, authString } = useAuthString();
+  const { navigate } = useNavigation();
 
   //получение отправленных валентинок
   useEffect(() => {
@@ -167,8 +171,9 @@ const MyValentinesScreen = ({ go, baseUrl }) => {
         } else if (daysDifference === 1) {
           return "вчера";
         } else if (daysDifference > 1) {
-          return `${daysDifference} дн${daysDifference > 1 && daysDifference < 4 ? "я " : "ей "
-            }назад`;
+          return `${daysDifference} дн${
+            daysDifference > 1 && daysDifference < 4 ? "я " : "ей "
+          }назад`;
         }
 
         return dateString;
@@ -179,13 +184,13 @@ const MyValentinesScreen = ({ go, baseUrl }) => {
       const avatarStyle = {
         ...(valentine.isAnonymous
           ? {
-            backgroundImage: `url(${anonim})`,
-            backgroundColor: "black",
-            backgroundSize: "cover",
-          }
+              backgroundImage: `url(${anonim})`,
+              backgroundColor: "black",
+              backgroundSize: "cover",
+            }
           : valentine.match || !valentine.isAnonymous
-            ? { backgroundImage: `url(${sender.avatar})` }
-            : {}),
+          ? { backgroundImage: `url(${sender.avatar})` }
+          : {}),
       };
 
       const getHeartClass = (valentine) => {
@@ -201,98 +206,32 @@ const MyValentinesScreen = ({ go, baseUrl }) => {
       };
 
       return (
-        <Div
-          key={valentine.id}
-          style={{
-            marginBottom: 0,
-            paddingLeft: "0",
-            paddingRight: "0",
-            paddingTop: "0",
-          }}
-        >
-          <Div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              padding: "8px",
-              paddingTop: "0",
-            }}
-          >
-            <Div
-              style={{
-                border: "1px solid #e2e0e0",
-                borderRadius: "10px",
-                width: "100%",
-                display: "flex",
-                flexDirection: "row",
-              }}
-            >
+        <WrapperDiv key={valentine.id}>
+          <ContainerDiv>
+            <StyledDiv>
               <Avatar style={avatarStyle} className="anon-avatar" />
-              <Div
-                style={{
-                  paddingTop: "3px",
-                  paddingLeft: "0",
-                  paddingBottom: "0",
-                }}
-              >
-                <h2
-                  style={{
-                    marginTop: "0",
-                    fontSize: "16px",
-                    marginBottom: "3px",
-                  }}
-                >
+              <ContentDiv>
+                <TitleHeading>
                   {valentine.isAnonymous
                     ? valentine.match
                       ? `${sender.firstName} ${sender.lastName}`
                       : "Аноним"
                     : `${sender.firstName} ${sender.lastName}`}
-                </h2>
-                <p
-                  style={{
-                    marginTop: "0",
-                    fontWeight: "400",
-                    fontSize: "14px",
-                    marginBottom: "0",
-                  }}
-                >
+                </TitleHeading>
+                <DescriptionParagraph>
                   {valentine.match
                     ? "У вас взаимная валентинка"
                     : "Отправил вам валентинку"}
-                </p>
-                <p
-                  style={{
-                    color: "grey",
-                    fontWeight: "300",
-                    fontSize: "14px",
-                    marginTop: "5px",
-                  }}
-                >
-                  {formattedDate}
-                </p>
-                <Button
-                  style={{
-                    color: "white",
-                    backgroundColor: "#FF3347",
-                  }}
-                  size="s"
-                  onClick={() => openPopup(valentine.id)}
-                >
+                </DescriptionParagraph>
+                <DateParagraph>{formattedDate}</DateParagraph>
+                <StyledButton size="s" onClick={() => openPopup(valentine.id)}>
                   Посмотреть
-                </Button>
-              </Div>
-              <div
-                style={{
-                  width: "28px",
-                  height: "28px",
-                  position: "absolute",
-                  right: "40px",
-                }}
-                className={getHeartClass(valentine)}
-              ></div>
-            </Div>
-          </Div>
-        </Div>
+                </StyledButton>
+              </ContentDiv>
+              <HeartDiv className={getHeartClass(valentine)}></HeartDiv>
+            </StyledDiv>
+          </ContainerDiv>
+        </WrapperDiv>
       );
     });
   };
@@ -303,7 +242,7 @@ const MyValentinesScreen = ({ go, baseUrl }) => {
         <PanelHeader>Полученные</PanelHeader>
       </FixedLayout>
 
-      <Div style={{ paddingTop: "70px", paddingBottom: "100px" }}>
+      <LoaderDiv>
         {loading ? (
           <div className="loader-container">
             <div className="loader"></div>
@@ -313,147 +252,223 @@ const MyValentinesScreen = ({ go, baseUrl }) => {
             {receivedValentines.length > 0 ? (
               renderReceivedValentines()
             ) : (
-              <p style={{ textAlign: "center", color: "#6d7885" }}>
+              <NoValentinesP>
                 Пока что у вас нет полученных валентинок
-              </p>
+              </NoValentinesP>
             )}
           </>
         )}
 
         {popupOpen && (
-          <Div
-            id="popup"
-            onClose={closePopup}
-            style={{
-              position: "fixed",
-              left: "50%",
-              top: "46%",
-              width: "80%",
-              position: "fixed",
-              backgroundColor: "white",
-              transform: "translate(-50%, -50%)",
-              padding: "0px 0px 0px",
-              borderRadius: "10px",
-              display: "flex",
-              justifyContent: "center",
-              flexDirection: "column",
-              alignItems: "center",
-              border: "1px solid rgb(193 193 193)",
-            }}
-          >
-            <Div
-              style={{
-                width: "100%",
-                height: "100%",
-                display: "flex",
-                justifyContent: "center",
-                padding: "0",
-                position: "absolute",
-              }}
-            >
-              <img
-                src={`${backgrounds.find(
-                  (b) => b.id === selectedValentine.backgroundId
-                )?.image_background
-                  }`}
+          <PopupDiv id="popup" onClose={closePopup}>
+            <ImageDiv>
+              <ImageBackground
+                src={`${
+                  backgrounds.find(
+                    (b) => b.id === selectedValentine.backgroundId
+                  )?.image_background
+                }`}
                 alt="Background"
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  position: "absolute",
-                  borderRadius: "10px",
-                  opacity: "0.2",
-                }}
               />
-              <img
-                src={`${backgrounds.find(
-                  (b) => b.id === selectedValentine.backgroundId
-                )?.image_background
-                  }`}
+              <Background
+                src={`${
+                  backgrounds.find(
+                    (b) => b.id === selectedValentine.backgroundId
+                  )?.image_background
+                }`}
                 alt="Background"
-                style={{
-                  width: "90%",
-                  top: "6%",
-                  objectFit: "cover",
-                  position: "absolute",
-                  borderRadius: "10px",
-                  border: "1px solid rgb(193 193 193)",
-                }}
               />
-              <img
-                src={`${valentines.find((b) => b.id === selectedValentine.imageId)
+              <StyledImage
+                src={`${
+                  valentines.find((b) => b.id === selectedValentine.imageId)
                     ?.image
-                  }`}
-                alt="Background"
-                style={{
-                  width: "90%",
-                  top: "6%",
-                  height: "auto",
-                  objectFit: "cover",
-                  position: "absolute",
-                  borderRadius: "10px",
-                }}
+                }`}
+                alt="icon"
               />
-            </Div>
-            <p
-              style={{
-                marginTop: "70%",
-                maxWidth: "300px",
-                marginLeft: "auto",
-                marginRight: "auto",
-                textAlign: "center",
-                color: "black",
-                zIndex: 3,
-              }}
-            >
-              {selectedValentine.text}
-            </p>
-            <Button
-              style={{
-                color: "white",
-                backgroundColor: "#FF3347",
-                marginLeft: "auto",
-                marginRight: "auto",
-                marginBottom: "10px",
-              }}
-              onClick={closePopup}
-            >
-              Закрыть
-            </Button>
-          </Div>
+            </ImageDiv>
+            <ValentineText>{selectedValentine.text}</ValentineText>
+            <CloseButton onClick={closePopup}>Закрыть</CloseButton>
+          </PopupDiv>
         )}
-      </Div>
+      </LoaderDiv>
       <Div className="custom-popout-wrapper"></Div>
-      <Div style={{ bottom: "12%", position: "fixed", paddingLeft: "24px" }}>
-        <Button
+      <BackDiv>
+        <BackButton
           className="nav__button"
-          style={{
-            color: "white",
-            backgroundColor: "#FF3347",
-            marginTop: "15px",
-            border: "1px solid white",
-          }}
           size="l"
           stretched="true"
-          onClick={() => go("main")}
+          onClick={() => navigate(PATHS.MAIN)}
         >
-          <img
-            style={{
-              width: "25px",
-              height: "25px",
-              marginTop: "auto",
-              marginBottom: "auto",
-              marginRight: "5px",
-            }}
-            src={arrow}
-          ></img>
+          <ArrowImage src={arrow}></ArrowImage>
           <p style={{ marginRight: "10px" }}>Назад</p>
-        </Button>
-      </Div>
-      <Navigator go={go} />
+        </BackButton>
+      </BackDiv>
+      <Navigator />
     </Panel>
   );
 };
+
+// Styled components
+const WrapperDiv = styled.div`
+  margin-bottom: 0;
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 0;
+`;
+
+const HeartDiv = styled.div`
+  width: 28px;
+  height: 28px;
+  position: absolute;
+  right: 40px;
+`;
+
+const ContainerDiv = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  padding-top: 0;
+`;
+
+const ContentDiv = styled.div`
+  padding-top: 3px;
+  padding-left: 0;
+  padding-bottom: 0;
+`;
+
+const ImageBackground = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  border-radius: 10px;
+  opacity: 0.2;
+`;
+
+const Background = styled.img`
+  width: 90%;
+  top: 6%;
+  object-fit: cover;
+  position: absolute;
+  border-radius: 10px;
+  border: 1px solid rgb(193 193 193);
+`;
+
+const StyledImage = styled.img`
+  width: 90%;
+  top: 6%;
+  object-fit: cover;
+  position: absolute;
+  border-radius: 10px;
+  height: auto;
+`;
+
+const ArrowImage = styled.img`
+  width: 25px;
+  height: 25px;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-right: 5px;
+`;
+
+const TitleHeading = styled.h2`
+  margin-top: 0;
+  font-size: 16px;
+  margin-bottom: 3px;
+`;
+
+const DescriptionParagraph = styled.p`
+  margin-top: 0;
+  font-weight: 400;
+  font-size: 14px;
+  margin-bottom: 0;
+`;
+
+const DateParagraph = styled.p`
+  color: grey;
+  font-weight: 300;
+  font-size: 14px;
+  margin-top: 5px;
+`;
+
+const NoValentinesP = styled.p`
+  text-align: center;
+  color: #6d7885;
+`;
+
+const ValentineText = styled.p`
+  margin-top: 70%;
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  color: black;
+  z-index: 3;
+`;
+
+const StyledDiv = styled(Div)`
+  border: 1px solid #e2e0e0;
+  border-radius: 10px;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+`;
+
+const LoaderDiv = styled(Div)`
+  padding-top: 70px;
+  padding-bottom: 100px;
+`;
+
+const BackDiv = styled(Div)`
+  bottom: 12%;
+  position: fixed;
+  padding-left: 24px;
+`;
+
+const ImageDiv = styled(Div)`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 0;
+  position: absolute;
+`;
+
+const PopupDiv = styled(Div)`
+  position: fixed;
+  left: 50%;
+  top: 46%;
+  width: 80%;
+  position: fixed;
+  background-color: white;
+  transform: translate(-50%, -50%);
+  padding: 0px 0px 0px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid rgb(193 193 193);
+`;
+
+const StyledButton = styled(Button)`
+  color: white;
+  background-color: #ff3347;
+`;
+
+const CloseButton = styled(Button)`
+  color: white;
+  background-color: #ff3347;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 10px;
+`;
+
+const BackButton = styled(Button)`
+  color: white;
+  background-color: #ff3347;
+  margin-top: 15px;
+  border: 1px solid white;
+`;
 
 export default MyValentinesScreen;
